@@ -5,7 +5,6 @@ const post = async (url, object) => {
     setTimeout(async () => {
       try {
         const response = await axios.post(url, object);
-        console.log("axios", response.status);
         resolve(response.data);
       } catch (err) {
         reject(err);

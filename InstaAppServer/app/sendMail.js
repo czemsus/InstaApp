@@ -53,8 +53,6 @@ export const sendMail = (email, token) => {
       </table>
   </body>`,
     });
-
-    console.log("Message sent: %s", info.messageId);
   }
 
   main().catch(console.error);

@@ -1,9 +1,10 @@
 <template>
   <div>
-    <div class="errorBox" v-show="getStatus()">
-      <h1>{{ getStatus() }}</h1>
-      <p>{{ getMessage() }}</p>
-    </div>
+    <ErrorField
+      v-show="getStatus()"
+      :status="getStatus()"
+      :message="getMessage()"
+    />
     <div class="formContainer">
       <form name="login-form" @submit.prevent="register">
         <a href=""
@@ -77,6 +78,7 @@
 </template>
 
 <script>
+import ErrorField from "@/components/ErrorField.vue";
 export default {
   data() {
     return {
@@ -103,11 +105,10 @@ export default {
         email: this.email,
         password: this.password,
       };
-      console.log(user);
-
       this.$store.dispatch("REGISTER", user);
     },
   },
+  components: { ErrorField },
 };
 </script>
 

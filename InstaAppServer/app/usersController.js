@@ -58,6 +58,5 @@ export const usersController = {
     let user = users.find((user) => user.mail == email);
     user.name = name;
     user.lastname = lastname;
-    console.log(users);
   },
 };

@@ -85,10 +85,8 @@ const usersRouter = async (req, res) => {
 
         break;
       } else if (req.url == "/api/user/login") {
-        console.log("abc");
         let data = await getRequestData(req);
         data = JSON.parse(data);
-        console.log("abc", data);
         let loginInfo = await usersController.login(data.email, data.password);
         res.writeHead(200, {
           "Content-Type": "text/plain;charset=utf-8",

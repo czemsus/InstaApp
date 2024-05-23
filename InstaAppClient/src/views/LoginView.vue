@@ -1,8 +1,9 @@
 <template>
-  <div class="errorBox" v-show="getStatus()">
-    <h1>{{ getStatus() }}</h1>
-    <p>{{ getMessage() }}</p>
-  </div>
+  <ErrorField
+    v-show="getStatus()"
+    :status="getStatus()"
+    :message="getMessage()"
+  />
   <div class="formContainer">
     <form name="login-form" @submit.prevent="logIn">
       <a href=""><img src="../assets/Instagram_text.png" alt="" /></a>
@@ -43,6 +44,8 @@
 </template>
 
 <script>
+import ErrorField from "@/components/ErrorField.vue";
+
 export default {
   data() {
     return {
@@ -56,7 +59,6 @@ export default {
         email: this.email,
         password: this.password,
       };
-      console.log(user);
 
       this.$store.dispatch("LOGIN", user);
     },
@@ -70,6 +72,7 @@ export default {
       return this.$store.getters.GET_MESSAGE;
     },
   },
+  components: { ErrorField },
 };
 </script>
 
@@ -85,6 +88,4 @@ a {
   padding: 40px 40px;
   gap: 10px;
 }
-
-
 </style>
