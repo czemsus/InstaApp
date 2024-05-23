@@ -1,0 +1,17 @@
+###GET - wyswietl dane profilu
+GET  http://localhost:3000/api/profile
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5hbWVhZEBlbWFpbC5wbCIsImlhdCI6MTcxNjE5MzkyMSwiZXhwIjoxNzE2MTkzOTUxfQ.FwuQEI1V3DQxRPA952BknxG9Y3Kvto5kHVR0IVjmU9Q
+
+###Patch - profile
+PATCH   http://localhost:3000/api/profile
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5hbWVhZEBlbWFpbC5wbCIsImlhdCI6MTcxNjE5MzkyMSwiZXhwIjoxNzE2MTkzOTUxfQ.FwuQEI1V3DQxRPA952BknxG9Y3Kvto5kHVR0IVjmU9Q
+Content-Type: application/json
+
+{
+    "name": "newname",
+    "lastname": "newlast"
+}
+
+### - logout
+GET  http://localhost:3000/api/logout
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5hbWVhZEBlbWFpbC5wbCIsImlhdCI6MTcxNjE5MzkyMSwiZXhwIjoxNzE2MTkzOTUxfQ.FwuQEI1V3DQxRPA952BknxG9Y3Kvto5kHVR0IVjmU9Q

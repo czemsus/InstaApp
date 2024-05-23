@@ -1,0 +1,48 @@
+### GET - pobierz dane tagów
+GET http://localhost:3000/api/tags/raw HTTP/1.1
+
+### GET - pobierz dane tagów
+GET http://localhost:3000/api/tags HTTP/1.1
+
+### GET - pobierz dane tagów
+GET http://localhost:3000/api/tags/2 HTTP/1.1
+
+### POST - dodaj tag
+
+POST http://localhost:3000/api/tags
+
+{
+ "name":"#nowytag",
+ "popularity": 1000000
+}
+
+### PATCH - edytuj tag
+
+PATCH  http://localhost:3000/api/photos/tags/1712730031596
+
+{
+    "name": "#nowytag"
+}
+
+###mass patch
+
+PATCH  http://localhost:3000/api/photos/tags/mass/1712730031596
+
+{
+    "array":[
+    
+{
+    "name": "#nowytag"
+},
+{
+    "name": "#nowytag1"
+},
+{
+    "name": "#nowytag2"
+}
+]
+}
+
+###get tags
+
+GET http://localhost:3000/api/photos/tags/1712730031596

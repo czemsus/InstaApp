@@ -1,0 +1,33 @@
+<template>
+  <div class="container">
+    <form name="login-form">
+      <div class="mb-3">
+        <label for="username">Username: </label>
+        <input id="username" type="text" />
+      </div>
+      <div class="mb-3">
+        <label for="password">Password: </label>
+        <input id="password" type="password" />
+      </div>
+      <button class="btn btn-outline-dark" type="submit">Login</button>
+    </form>
+  </div>
+</template>
+
+<script>
+export default {};
+</script>
+
+<style scoped>
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+</style>
