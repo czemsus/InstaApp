@@ -22,18 +22,21 @@ const login = {
     GET_TOKEN(state) {
       return state.userToken;
     },
+    GET_LOGIN_LOADER(state) {
+      return state.loginStatus;
+    },
   },
 
   actions: {
     async LOGIN({ state, commit }, user) {
-      commit("SET_LOGIN_LOADING", true);
+      commit("SET_LOGIN_LOADER", true);
       try {
         const data = await postLoginData(user);
         commit("SET_USER_TOKEN", state, data.token);
       } catch (err) {
         console.log("err", err);
       } finally {
-        commit("SET_LOGIN_LOADING", false);
+        commit("SET_LOGIN_LOADER", false);
       }
     },
   },

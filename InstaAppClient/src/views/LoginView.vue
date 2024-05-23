@@ -18,13 +18,16 @@
           v-model="password"
         />
       </div>
-      <button type="submit">Zaloguj się</button>
+      <button type="submit">
+        <div class="loader" v-show="getLoading()"></div>
+        <p v-show="!getLoading()">Zaloguj się</p>
+      </button>
       <p class="lined-text">LUB</p>
       <a href="">Nie pamiętasz hasła?</a>
       <a href="">
         <div class="fb">
-          <img src="../assets/facebook_logo.png" width="20" /> Zaloguj się przez
-          Facebooka
+          <img src="../assets/facebook_logo.png" width="20" />
+          Zaloguj się przez Facebooka
         </div></a
       >
     </form>
@@ -44,7 +47,7 @@ export default {
     };
   },
   methods: {
-    logIn(event) {
+    logIn() {
       const user = {
         email: this.email,
         password: this.password,
@@ -52,6 +55,9 @@ export default {
       console.log(user);
 
       this.$store.dispatch("LOGIN", user);
+    },
+    getLoading() {
+      return this.$store.getters.GET_LOGIN_LOADER;
     },
   },
 };
@@ -91,6 +97,8 @@ button {
   color: aliceblue;
   margin-top: 20px;
   padding: 12px 60px;
+  display: flex;
+  justify-content: center;
 }
 
 a {
@@ -124,5 +132,25 @@ a {
   border: 1px solid lightgray;
   padding: 40px 56px;
   gap: 10px;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
