@@ -27,7 +27,7 @@ export const usersController = {
   login: async (email, pass) => {
     let user = users.find((user) => user.mail == email);
     if (user) {
-      if (decryptPass(pass, user.pass)) {
+      if (await decryptPass(pass, user.pass)) {
         if (user.confirmed) {
           let token = await createToken(email);
           return { token: token, msg: "Udane logowanie", status: "success" };
