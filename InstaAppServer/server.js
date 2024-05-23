@@ -6,7 +6,19 @@ import usersRouter from "./app/usersRouter.js";
 import profileRouter from "./app/profileRouter.js";
 import "dotenv/config";
 createServer(async (req, res) => {
-  //images
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Request-Method", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "OPTIONS, GET, POST, PATCH, PUT, DELETE"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "*, Authorization");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
 
   if (req.url.search("/api/photos") != -1) {
     await imageRouter(req, res);

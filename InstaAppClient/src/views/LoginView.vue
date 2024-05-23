@@ -1,12 +1,22 @@
 <template>
   <div class="container">
-    <form name="login-form">
+    <form name="login-form" @submit.prevent="logIn">
       <a href=""><img src="../assets/Instagram_text.png" alt="" /></a>
       <div>
-        <input id="username" type="email" placeholder="Adres e-mail" />
+        <input
+          id="username"
+          type="email"
+          placeholder="Adres e-mail"
+          v-model="email"
+        />
       </div>
       <div>
-        <input id="password" type="password" placeholder="Hasło" />
+        <input
+          id="password"
+          type="password"
+          placeholder="Hasło"
+          v-model="password"
+        />
       </div>
       <button type="submit">Zaloguj się</button>
       <p class="lined-text">LUB</p>
@@ -26,7 +36,25 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      email: null,
+      password: null,
+    };
+  },
+  methods: {
+    logIn(event) {
+      const user = {
+        email: this.email,
+        password: this.password,
+      };
+      console.log(user);
+
+      this.$store.dispatch("LOGIN", user);
+    },
+  },
+};
 </script>
 
 <style scoped>
