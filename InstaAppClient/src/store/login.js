@@ -6,6 +6,8 @@ const login = {
     return {
       userToken: null,
       loginStatus: false,
+      error: null,
+      message: "",
     };
   },
 
@@ -16,6 +18,12 @@ const login = {
     SET_LOGIN_LOADER(state, status) {
       state.loginStatus = status;
     },
+    SET_STATUS(state, err) {
+      state.error = err;
+    },
+    SET_MESSAGE(state, msg) {
+      state.message = msg;
+    },
   },
 
   getters: {
@@ -25,16 +33,27 @@ const login = {
     GET_LOGIN_LOADER(state) {
       return state.loginStatus;
     },
+    GET_STATUS(state) {
+      return state.error;
+    },
+    GET_MESSAGE(state) {
+      return state.message;
+    },
   },
 
   actions: {
-    async LOGIN({ state, commit }, user) {
+    async LOGIN({ commit }, user) {
       commit("SET_LOGIN_LOADER", true);
       try {
         const data = await postLoginData(user);
-        commit("SET_USER_TOKEN", state, data.token);
+        console.log(data);
+        commit("SET_USER_TOKEN", data.token);
+        commit("SET_STATUS", data.status);
+        commit("SET_MESSAGE", data.msg);
       } catch (err) {
-        console.log("err", err);
+        console.log("Error during login:", err.message || err);
+        commit("SET_STATUS", "error");
+        commit("SET_MESSAGE", err.message || "Login failed");
       } finally {
         commit("SET_LOGIN_LOADER", false);
       }

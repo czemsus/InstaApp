@@ -1,5 +1,9 @@
 <template>
-  <div class="container">
+  <div class="errorBox" v-show="getStatus()">
+    <h1>{{ getStatus() }}</h1>
+    <p>{{ getMessage() }}</p>
+  </div>
+  <div class="formContainer">
     <form name="login-form" @submit.prevent="logIn">
       <a href=""><img src="../assets/Instagram_text.png" alt="" /></a>
       <div>
@@ -59,90 +63,27 @@ export default {
     getLoading() {
       return this.$store.getters.GET_LOGIN_LOADER;
     },
+    getStatus() {
+      return this.$store.getters.GET_STATUS;
+    },
+    getMessage() {
+      return this.$store.getters.GET_MESSAGE;
+    },
   },
 };
 </script>
 
 <style scoped>
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  flex-direction: column;
-  gap: 40px;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid lightgray;
-  padding: 40px;
-  gap: 10px;
-}
-
-input {
-  padding: 10px 5px;
-  margin-top: 2px;
-  background-color: azure;
-  border-radius: 4px;
-  border: 1px solid lightgrey;
-  width: 100%;
-}
-
-button {
-  background-color: skyblue;
-  border-radius: 10px;
-  border: 1px solid lightgrey;
-  color: aliceblue;
-  margin-top: 20px;
-  padding: 12px 60px;
-  display: flex;
-  justify-content: center;
-}
-
 a {
   text-align: center;
-}
-
-.lined-text {
-  display: flex;
-  align-items: center;
-  text-align: center;
-}
-
-.lined-text::before,
-.lined-text::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: #ccc;
-  margin: 0 10px;
-}
-
-.fb {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
 }
 
 .noAccount {
   display: flex;
   flex-direction: row;
   border: 1px solid lightgray;
-  padding: 40px 56px;
+  padding: 40px 40px;
   gap: 10px;
-}
-
-.loader {
-  display: flex;
-  justify-content: center;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 2s linear infinite;
 }
 
 @keyframes spin {
