@@ -3,21 +3,18 @@ import "dotenv/config";
 
 const { sign, verify } = jsonwebtoken;
 
-
 export const createToken = async (mail) => {
-
-    let token = await sign(
-        {
-            email: mail,
-        },
-        process.env.SECRET_KEY,
-        {
-            expiresIn: "30s"
-        }
-    );
-    return token
-}
-
+  let token = await sign(
+    {
+      email: mail,
+    },
+    process.env.SECRET_KEY,
+    {
+      expiresIn: "3600s",
+    }
+  );
+  return token;
+};
 
 export const verifyToken = (token) => {
   try {

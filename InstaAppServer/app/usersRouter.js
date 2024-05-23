@@ -61,6 +61,8 @@ const usersRouter = async (req, res) => {
         data = JSON.parse(data);
         if (usersController.register(data)) {
           let token = await createToken(data.email);
+          sendMail(data.email, token);
+
           res.writeHead(200, {
             "Content-Type": "text/plain;charset=utf-8",
           });
@@ -87,7 +89,6 @@ const usersRouter = async (req, res) => {
         let data = await getRequestData(req);
         data = JSON.parse(data);
         console.log("abc", data);
-        // sendMail(data.email);
         let loginInfo = await usersController.login(data.email, data.password);
         res.writeHead(200, {
           "Content-Type": "text/plain;charset=utf-8",

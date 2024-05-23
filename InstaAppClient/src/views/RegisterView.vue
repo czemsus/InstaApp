@@ -1,7 +1,11 @@
 <template>
   <div>
+    <div class="errorBox" v-show="getStatus()">
+      <h1>{{ getStatus() }}</h1>
+      <p>{{ getMessage() }}</p>
+    </div>
     <div class="formContainer">
-      <form name="login-form" @submit.prevent="logIn">
+      <form name="login-form" @submit.prevent="register">
         <a href=""
           ><img
             src="../assets/Instagram_text.png"
@@ -26,10 +30,19 @@
             type="email"
             placeholder="Adres e-mail"
             v-model="email"
+            required
           />
         </div>
         <div>
-          <input type="text" v-model="name" placeholder="Imię i Nazwisko" />
+          <input type="text" v-model="name" placeholder="Imię" requierd />
+        </div>
+        <div>
+          <input
+            type="text"
+            v-model="lastname"
+            placeholder="Nazwisko"
+            requierd
+          />
         </div>
         <div>
           <input
@@ -37,6 +50,7 @@
             type="password"
             placeholder="Hasło"
             v-model="password"
+            required
           />
         </div>
         <button type="submit">
@@ -65,7 +79,12 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      name: "",
+      lastname: "",
+      email: "",
+      password: "",
+    };
   },
   methods: {
     getLoading() {
@@ -76,6 +95,17 @@ export default {
     },
     getMessage() {
       return this.$store.getters.GET_MESSAGE;
+    },
+    register() {
+      const user = {
+        name: this.name,
+        lastname: this.lastname,
+        email: this.email,
+        password: this.password,
+      };
+      console.log(user);
+
+      this.$store.dispatch("REGISTER", user);
     },
   },
 };

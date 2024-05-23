@@ -17,4 +17,7 @@ const post = async (url, object) => {
 const postLoginData = (object) =>
   post("http://localhost:3000/api/user/login", object);
 
-export { postLoginData };
+const postRegisterData = (object) =>
+  post("http://localhost:3000/api/user/register", object);
+
+export { postLoginData, postRegisterData };

@@ -1,5 +1,4 @@
-import { postLoginData } from "@/api/api";
-import axios from "axios";
+import { postLoginData, postRegisterData } from "@/api/api";
 
 const login = {
   state() {
@@ -48,6 +47,21 @@ const login = {
         const data = await postLoginData(user);
         console.log(data);
         commit("SET_USER_TOKEN", data.token);
+        commit("SET_STATUS", data.status);
+        commit("SET_MESSAGE", data.msg);
+      } catch (err) {
+        console.log("Error during login:", err.message || err);
+        commit("SET_STATUS", "error");
+        commit("SET_MESSAGE", err.message || "Login failed");
+      } finally {
+        commit("SET_LOGIN_LOADER", false);
+      }
+    },
+    async REGISTER({ commit }, user) {
+      commit("SET_LOGIN_LOADER", true);
+      try {
+        const data = await postRegisterData(user);
+        console.log(data);
         commit("SET_STATUS", data.status);
         commit("SET_MESSAGE", data.msg);
       } catch (err) {
