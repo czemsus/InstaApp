@@ -5,9 +5,10 @@ import { createToken } from "./jwt.js";
 export const usersController = {
   register: (data) => {
     if (!users.some((user) => user.mail == data.email)) {
-      let user = new User(data.name, data.lastName, data.email);
+      let user = new User(data.name, data.lastname, data.email);
       encryptPass(data.password, user);
       users.push(user);
+
       return true;
     } else {
       return false;
