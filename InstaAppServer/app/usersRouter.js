@@ -53,6 +53,27 @@ const usersRouter = async (req, res) => {
           let data = verifyToken(jwt);
           usersController.verifyAccount(data.email);
         }
+      } else if (
+        req.url.match(
+          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+        )
+      ) {
+        const jwt = req.url.match(
+          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+        )[1];
+        if (verifyToken(jwt) == "expired") {
+          let valid = false;
+        } else {
+          let valid = true;
+        }
+        res.writeHead(200, {
+          "Content-Type": "text/plain;charset=utf-8",
+        });
+        res.end(
+          JSON.stringify({
+            valid: valid,
+          })
+        );
       }
       break;
     case "POST":

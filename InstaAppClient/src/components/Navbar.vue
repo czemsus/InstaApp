@@ -5,13 +5,29 @@
       <RouterLink to="/" exact>
         <font-awesome-icon :icon="['fas', 'home']" /> Strona główna</RouterLink
       >
-      <RouterLink to="/login">Szukaj</RouterLink>
-      <RouterLink to="/nnn">Eksploruj</RouterLink>
-      <RouterLink to="/nnn">Rolki</RouterLink>
-      <RouterLink to="/nnn">Wiadomości</RouterLink>
-      <RouterLink to="/nnn">Polubienia</RouterLink>
-      <RouterLink to="/nnn">Utwórz</RouterLink>
-      <RouterLink to="/nnn">Profil</RouterLink>
+      <RouterLink to="/search"
+        ><font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+        Szukaj</RouterLink
+      >
+      <RouterLink to="/nnn"
+        ><font-awesome-icon :icon="['far', 'compass']" /> Eksploruj</RouterLink
+      >
+      <RouterLink to="/nnn"
+        ><font-awesome-icon :icon="['fas', 'video']" /> Rolki</RouterLink
+      >
+      <RouterLink to="/nnn"
+        ><font-awesome-icon :icon="['far', 'paper-plane']" />
+        Wiadomości</RouterLink
+      >
+      <RouterLink to="/nnn"
+        ><font-awesome-icon :icon="['far', 'heart']" /> Polubienia</RouterLink
+      >
+      <RouterLink to="/nnn"
+        ><font-awesome-icon :icon="['fas', 'plus']" /> Utwórz</RouterLink
+      >
+      <RouterLink to="/profile"
+        ><font-awesome-icon :icon="['far', 'compass']" /> Profil</RouterLink
+      >
     </div>
   </div>
 </template>

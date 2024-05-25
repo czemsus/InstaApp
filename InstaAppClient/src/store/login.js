@@ -1,5 +1,5 @@
-import { postLoginData, postRegisterData } from "@/api/api";
-import router from '../router/index'
+import { getTokenValid, postLoginData, postRegisterData } from "@/api/api";
+import router from "../router/index";
 
 const login = {
   state() {
@@ -49,8 +49,7 @@ const login = {
         commit("SET_USER_TOKEN", data.token);
         commit("SET_STATUS", data.status);
         commit("SET_MESSAGE", data.msg);
-        router.push("/")
-
+        router.push("/");
       } catch (err) {
         commit("SET_STATUS", "error");
         commit("SET_MESSAGE", err.message || "Login failed");
@@ -69,6 +68,14 @@ const login = {
         commit("SET_MESSAGE", err.message || "Register failed");
       } finally {
         commit("SET_LOGIN_LOADER", false);
+      }
+    },
+    async GET_VALID({ commit }, token) {
+      try {
+        const data = await getTokenValid(token);
+        return data.valid;
+      } catch (err) {
+        return false;
       }
     },
   },
