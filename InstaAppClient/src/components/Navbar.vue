@@ -1,9 +1,10 @@
 <template>
-
   <div class="header">
-    <img src='../assets/instagram_text.png' width='160px'/>
+    <img src="../assets/instagram_text.png" width="160px" />
     <div class="menu">
-      <RouterLink to="/" exact>Strona główna</RouterLink>
+      <RouterLink to="/" exact>
+        <font-awesome-icon :icon="['fas', 'home']" /> Strona główna</RouterLink
+      >
       <RouterLink to="/login">Szukaj</RouterLink>
       <RouterLink to="/nnn">Eksploruj</RouterLink>
       <RouterLink to="/nnn">Rolki</RouterLink>
@@ -11,8 +12,6 @@
       <RouterLink to="/nnn">Polubienia</RouterLink>
       <RouterLink to="/nnn">Utwórz</RouterLink>
       <RouterLink to="/nnn">Profil</RouterLink>
-
-
     </div>
   </div>
 </template>
@@ -22,8 +21,7 @@ export default {};
 </script>
 
 <style scoped>
-
-img{
+img {
   padding: 24px 8px;
 }
 
@@ -31,7 +29,7 @@ img{
   display: flex;
   flex-direction: column;
   border-right: 1px solid lightgray;
-  padding-right: 70px
+  padding-right: 70px;
 }
 
 .logo {
@@ -41,9 +39,10 @@ img{
 
 .menu {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
   padding: 1rem;
+  height: 100vh;
 }
 
 .menu a {
@@ -56,7 +55,7 @@ img{
 }
 
 .menu a:hover {
-  background-color: rgb(242,242,242);
+  background-color: rgb(242, 242, 242);
 }
 
 .menu a.router-link-active {
