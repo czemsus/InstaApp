@@ -1,4 +1,5 @@
 <template>
+  <AddingPhotoForm v-if="isVisible" @close="closeForm" />
   <div class="header">
     <img src="../assets/instagram_text.png" width="160px" />
     <div class="menu">
@@ -22,9 +23,9 @@
       <RouterLink to="/nnn"
         ><font-awesome-icon :icon="['far', 'heart']" /> Polubienia</RouterLink
       >
-      <RouterLink to="/nnn"
-        ><font-awesome-icon :icon="['fas', 'plus']" /> Utwórz</RouterLink
-      >
+      <p @click="toggleForm">
+        <font-awesome-icon :icon="['fas', 'plus']" /> Utwórz
+      </p>
       <RouterLink to="/profile"
         ><font-awesome-icon :icon="['far', 'compass']" /> Profil</RouterLink
       >
@@ -33,7 +34,23 @@
 </template>
 
 <script>
-export default {};
+import AddingPhotoForm from "./AddingPhotoForm.vue";
+export default {
+  data() {
+    return {
+      isVisible: false,
+    };
+  },
+  methods: {
+    toggleForm() {
+      this.isVisible = !this.isVisible;
+    },
+    closeForm() {
+      this.isVisible = false;
+    },
+  },
+  components: { AddingPhotoForm },
+};
 </script>
 
 <style scoped>
@@ -58,10 +75,14 @@ img {
   justify-content: flex-start;
   flex-direction: column;
   padding: 1rem;
+}
+
+.header {
   height: 100vh;
 }
 
-.menu a {
+.menu a,
+.menu p {
   color: black;
   text-decoration: none;
   padding: 1rem 1.5rem;
@@ -70,8 +91,10 @@ img {
   transition: background-color 0.3s ease;
 }
 
-.menu a:hover {
+.menu a:hover,
+.menu p:hover {
   background-color: rgb(242, 242, 242);
+  cursor: pointer;
 }
 
 .menu a.router-link-active {

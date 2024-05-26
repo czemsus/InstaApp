@@ -61,10 +61,11 @@ const usersRouter = async (req, res) => {
         const jwt = req.url.match(
           /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
         )[1];
+        let valid;
         if (verifyToken(jwt) == "expired") {
-          let valid = false;
+          valid = false;
         } else {
-          let valid = true;
+          valid = true;
         }
         res.writeHead(200, {
           "Content-Type": "text/plain;charset=utf-8",

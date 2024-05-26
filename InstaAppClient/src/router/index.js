@@ -38,10 +38,12 @@ router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     console.log("to");
 
-    const token = store.state.token;
+    const token = localStorage.getItem("userToken");
+    console.log(token);
     if (token) {
       const isValid = await store.dispatch("GET_VALID", token);
       if (isValid) {
+        store.commit("SET_USER_TOKEN", token);
         next();
       } else {
         next("/login");

@@ -9,24 +9,25 @@ export default class Photo {
     this.lastChange = "original";
     this.history = [{ status: "original", timestamp: Date.now() }];
     this.tags = [];
+    this.desc = "";
   }
 }
 
 export class User {
-  constructor(name, lastname, mail){
-    this.id = users.length
-    this.name = name
-    this.lastname = lastname
-    this.mail = mail
-    this.confirmed = false
+  constructor(name, lastname, mail) {
+    this.id = users.length;
+    this.name = name;
+    this.lastname = lastname;
+    this.mail = mail;
+    this.confirmed = false;
+    this.bio = "";
   }
 }
 
-
 let photos = [];
 let tagsObjects = [];
-let users = []
-let usedTokens = []
+let users = [];
+let usedTokens = [];
 
 let tags = [
   "#love",

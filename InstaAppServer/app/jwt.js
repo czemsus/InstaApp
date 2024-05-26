@@ -10,7 +10,7 @@ export const createToken = async (mail) => {
     },
     process.env.SECRET_KEY,
     {
-      expiresIn: "2s",
+      expiresIn: "3600s",
     }
   );
   return token;

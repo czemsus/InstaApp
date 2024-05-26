@@ -71,6 +71,9 @@ export default {
     getMessage() {
       return this.$store.getters.GET_MESSAGE;
     },
+    getToken() {
+      return this.$store.getters.GET_TOKEN;
+    },
   },
   components: { ErrorField },
 };
