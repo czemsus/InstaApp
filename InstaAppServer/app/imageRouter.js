@@ -4,6 +4,7 @@ import path from "path";
 import formidable from "formidable";
 import JsonController from "./JsonController.js";
 import getRequestData from "./getRequestData.js";
+import { verifyToken } from "./jwt.js";
 const __dirname = path.resolve();
 
 const imageRouter = async (req, res) => {
@@ -65,11 +66,20 @@ const imageRouter = async (req, res) => {
         break;
       }
     case "POST":
-      if (req.url == "/api/photos") {
+      if (
+        req.url.match(
+          /\/api\/photos\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+        )
+      ) {
+        const jwt = req.url.match(
+          /\/api\/photos\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+        )[1];
+        let email = verifyToken(jwt).email;
         const form = new formidable.IncomingForm();
         form.parse(req, function (err, fields, files) {
           let oldPath = files.file.path;
-          let newPath = path.join(__dirname, "uploads") + "/" + files.file.name;
+          let newPath =
+            path.join(__dirname, "uploads", email) + "/" + files.file.name;
           let rawData = fs.readFileSync(files.file.path);
 
           fs.copyFile(oldPath, newPath, function (err) {

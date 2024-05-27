@@ -18,7 +18,6 @@ const get = async (url) => {
     setTimeout(async () => {
       try {
         const response = await axios.get(url);
-        console.log("axios", response.data);
         resolve(response.data);
       } catch (err) {
         console.log(err);
@@ -37,6 +36,10 @@ const postRegisterData = (object) =>
 const getTokenValid = (token) =>
   get(`http://localhost:3000/api/user/checktoken/${token}`);
 
-const sendImage = (data) => post("http://localhost:3000/api/photos", data);
+const sendImage = (data) => {
+  let token = localStorage.getItem("userToken");
+  let path = `http://localhost:3000/api/photos/${token}`;
+  post(path, data);
+};
 
 export { postLoginData, postRegisterData, getTokenValid, sendImage };

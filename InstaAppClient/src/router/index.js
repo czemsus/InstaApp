@@ -36,10 +36,8 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    console.log("to");
 
     const token = localStorage.getItem("userToken");
-    console.log(token);
     if (token) {
       const isValid = await store.dispatch("GET_VALID", token);
       if (isValid) {

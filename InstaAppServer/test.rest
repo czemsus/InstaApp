@@ -11,7 +11,7 @@ DELETE http://localhost:3000/api/photos/1712730031596 HTTP/1.1
 PATCH http://localhost:3000/api/photos/1711669336164 HTTP/1.1
 
 ### POST
-POST http://localhost:3000/api/photos HTTP/1.1
+POST http://localhost:3000/api/photos/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1pa29sYWpzb2xhcnoxMUBnbWFpbC5jb20iLCJpYXQiOjE3MTY4Mzc4MTMsImV4cCI6MTcxNjg0MTQxM30.aJkzRE4beb-2Fgn-NgAUunhU8wnyT4V7w5pAfdmdpAk HTTP/1.1
 Content-Type: multipart/form-data; boundary=----FormBoundary1234
 
 ------FormBoundary1234

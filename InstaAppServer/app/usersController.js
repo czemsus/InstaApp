@@ -11,7 +11,7 @@ export const usersController = {
       let user = new User(data.name, data.lastname, data.email);
       encryptPass(data.password, user);
       users.push(user);
-      const directoryPath = path.join(__dirname, "upload", data.email);
+      const directoryPath = path.join(__dirname, "uploads", data.email);
       fs.mkdir(directoryPath, { recursive: true }, (err) => {
         if (err) {
           return console.error(`Failed to create directory: ${err.message}`);

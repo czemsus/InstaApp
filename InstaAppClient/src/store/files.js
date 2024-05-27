@@ -21,9 +21,9 @@ const files = {
   getters: {},
 
   actions: {
-    async SEND_IMAGE({ commit }, data1) {
+    async SEND_IMAGE({ commit }, data1, token) {
       try {
-        const data = await sendImage(data1);
+        const data = await sendImage(data1, token);
       } catch (err) {
         return false;
       }

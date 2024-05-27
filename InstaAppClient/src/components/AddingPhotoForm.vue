@@ -43,7 +43,11 @@ export default {
       thumbnailUrl: "",
       selected: false,
       file: null,
+      token: "",
     };
+  },
+  created() {
+    this.token = this.getToken();
   },
   methods: {
     closeForm(event) {
@@ -52,7 +56,6 @@ export default {
       }
     },
     handleSelect(event) {
-      console.log("Files selected:", event.files);
       this.file = event.files[0];
       if (this.file) {
         this.generateThumbnail(this.file);
@@ -80,6 +83,9 @@ export default {
         this.file = files[0];
         this.handleSelect({ files: [this.file] });
       }
+    },
+    getToken() {
+      return this.$store.getters.GET_TOKEN;
     },
   },
   components: {
