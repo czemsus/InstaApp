@@ -14,6 +14,7 @@
         @select="handleSelect($event)"
       >
         <template #empty>
+          <img src="../assets/files.png" width="50px" alt="" />
           <p>Drag and drop files to here to upload.</p>
         </template>
       </FileUpload>
@@ -33,6 +34,8 @@ export default {
     return {
       name: "",
       thumbnailUrl: "",
+      selected: false,
+      file: null,
     };
   },
   methods: {
@@ -56,15 +59,19 @@ export default {
       }
     },
     generateThumbnail(file) {
-      if (file.objectURL) {
-        this.thumbnailUrl = file.objectURL; // Use the Blob URL directly
+      if (this.file.objectURL) {
+        this.thumbnailUrl = this.file.objectURL;
+        this.selected = true;
       } else {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.thumbnailUrl = e.target.result; // Set thumbnail URL as background image
+          this.thumbnailUrl = e.target.result;
         };
         reader.readAsDataURL(this.file);
       }
+    },
+    sendImage() {
+      this.$store.dispatch("SEND_IMAGE", this.file);
     },
   },
   components: { FileUpload },
@@ -104,6 +111,37 @@ export default {
   height: 100%;
   background-size: cover;
   background-position: center;
-  border-radius: 8px;
+  border-radius: 0px 0px 8px 8px;
+
+  z-index: 3;
+}
+
+img {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+  bottom: 300px;
+}
+
+.next {
+  position: absolute;
+  background: white;
+  padding: 20px;
+  border-radius: 8px 8px 0px 0px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  width: 600px;
+  height: 50px;
+  z-index: 4;
+  top: 124px;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0px;
+  color: #3498db;
+  margin: 0;
+  position: absolute;
+  right: 20px;
 }
 </style>
