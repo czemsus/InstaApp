@@ -1,7 +1,8 @@
 <template>
-  <div class="overlay" @click="closeForm">
+  <div class="overlay" @click="closeForm" v-if="a">
     <div class="next" v-show="selected">
-      <button @click="sendImage()">Prześlij</button>
+      <button @click="sendImage($event)">Prześlij</button>
+      <button @click="dontShow()" class="anuluj">Anuluj</button>
     </div>
 
     <div
@@ -35,6 +36,7 @@
 </template>
 
 <script>
+import router from "@/router";
 import FileUpload from "primevue/fileupload";
 
 export default {
@@ -44,12 +46,16 @@ export default {
       selected: false,
       file: null,
       token: "",
+      a: true,
     };
   },
   created() {
     this.token = this.getToken();
   },
   methods: {
+    dontShow() {
+      this.a = false;
+    },
     closeForm(event) {
       if (event.target.classList.contains("overlay")) {
         this.$emit("close");
@@ -71,7 +77,7 @@ export default {
       };
       reader.readAsDataURL(file);
     },
-    sendImage() {
+    sendImage(event) {
       const formdata = new FormData();
       formdata.append("album", "user_album");
       formdata.append("file", this.file);
@@ -156,5 +162,11 @@ button {
   position: absolute;
   right: 20px;
   cursor: pointer;
+}
+
+.anuluj {
+  position: absolute;
+  left: -500px;
+  color: red;
 }
 </style>
