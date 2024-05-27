@@ -132,7 +132,7 @@ img {
   width: 600px;
   height: 50px;
   z-index: 4;
-  top: 86px;
+  top: 124px;
 }
 
 button {
