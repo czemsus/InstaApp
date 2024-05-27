@@ -69,7 +69,10 @@ export default {
       reader.readAsDataURL(file);
     },
     sendImage() {
-      this.$store.dispatch("SEND_IMAGE", this.file);
+      const formdata = new FormData();
+      formdata.append("album", "user_album");
+      formdata.append("file", this.file);
+      this.$store.dispatch("SEND_IMAGE", formdata);
     },
     handleDrop(event) {
       const files = event.dataTransfer.files;

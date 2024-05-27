@@ -5,6 +5,7 @@ export default class Photo {
     this.id = Date.now();
     this.album = album;
     this.originalName = originalName;
+    this.owner = "";
     this.url = url;
     this.lastChange = "original";
     this.history = [{ status: "original", timestamp: Date.now() }];
