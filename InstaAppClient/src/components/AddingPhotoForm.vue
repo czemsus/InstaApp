@@ -4,18 +4,25 @@
       <button @click="sendImage()">Prześlij</button>
     </div>
 
-    <div class="form-container" @click.stop>
+    <div
+      class="form-container"
+      @click.stop
+      @dragover.prevent
+      @drop.prevent="handleDrop"
+    >
       <FileUpload
         name="demo[]"
         url="/api/photos"
         :multiple="false"
         accept="image/*"
-        :maxFileSize="1000000"
-        @select="handleSelect($event)"
+        :max-file-size="1000000"
+        @select="handleSelect"
       >
-        <template #empty>
-          <img src="../assets/files.png" width="50px" alt="" />
-          <p>Drag and drop files to here to upload.</p>
+        <template #content>
+          <div class="drop-area">
+            <img src="../assets/files.png" width="50px" alt="" />
+            <p>Drag and drop files here to upload.</p>
+          </div>
         </template>
       </FileUpload>
       <div
@@ -29,26 +36,21 @@
 
 <script>
 import FileUpload from "primevue/fileupload";
+
 export default {
   data() {
     return {
-      name: "",
       thumbnailUrl: "",
       selected: false,
       file: null,
     };
   },
   methods: {
-    handleSubmit() {
-      console.log("Form submitted:", this.name);
-      this.$emit("close");
-    },
     closeForm(event) {
       if (event.target.classList.contains("overlay")) {
         this.$emit("close");
       }
     },
-
     handleSelect(event) {
       console.log("Files selected:", event.files);
       this.file = event.files[0];
@@ -59,22 +61,27 @@ export default {
       }
     },
     generateThumbnail(file) {
-      if (this.file.objectURL) {
-        this.thumbnailUrl = this.file.objectURL;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.thumbnailUrl = e.target.result;
         this.selected = true;
-      } else {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.thumbnailUrl = e.target.result;
-        };
-        reader.readAsDataURL(this.file);
-      }
+      };
+      reader.readAsDataURL(file);
     },
     sendImage() {
       this.$store.dispatch("SEND_IMAGE", this.file);
     },
+    handleDrop(event) {
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        this.file = files[0];
+        this.handleSelect({ files: [this.file] });
+      }
+    },
   },
-  components: { FileUpload },
+  components: {
+    FileUpload,
+  },
 };
 </script>
 
@@ -95,12 +102,16 @@ export default {
 .form-container {
   background: white;
   padding: 20px;
-  border-radius: 0px 0px 8px 8px;
+  border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   z-index: 2;
   position: relative;
   width: 600px;
   height: 600px;
+}
+
+.drop-area {
+  text-align: center;
 }
 
 .thumbnail {
@@ -112,22 +123,14 @@ export default {
   background-size: cover;
   background-position: center;
   border-radius: 0px 0px 8px 8px;
-
   z-index: 3;
-}
-
-img {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, 0);
-  bottom: 300px;
 }
 
 .next {
   position: absolute;
   background: white;
   padding: 20px;
-  border-radius: 8px 8px 0px 0px;
+  border-radius: 8px 8px 0 0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   width: 600px;
   height: 50px;
@@ -143,5 +146,6 @@ button {
   margin: 0;
   position: absolute;
   right: 20px;
+  cursor: pointer;
 }
 </style>
