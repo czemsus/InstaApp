@@ -1,6 +1,9 @@
 import { users, User } from "./Model.js";
 import { decryptPass, encryptPass } from "./bcrypt.js";
 import { createToken } from "./jwt.js";
+import fs from "fs";
+import path from "path";
+const __dirname = path.resolve();
 
 export const usersController = {
   register: (data) => {
@@ -8,6 +11,12 @@ export const usersController = {
       let user = new User(data.name, data.lastname, data.email);
       encryptPass(data.password, user);
       users.push(user);
+      const directoryPath = path.join(__dirname, "upload", data.email);
+      fs.mkdir(directoryPath, { recursive: true }, (err) => {
+        if (err) {
+          return console.error(`Failed to create directory: ${err.message}`);
+        }
+      });
 
       return true;
     } else {
@@ -31,6 +40,7 @@ export const usersController = {
       if (await decryptPass(pass, user.pass)) {
         if (user.confirmed) {
           let token = await createToken(email);
+
           return { token: token, msg: "Udane logowanie", status: "success" };
         } else {
           return {

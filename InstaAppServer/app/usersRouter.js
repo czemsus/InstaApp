@@ -61,6 +61,7 @@ const usersRouter = async (req, res) => {
         const jwt = req.url.match(
           /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
         )[1];
+        let email = verifyToken(jwt).email;
         let valid;
         if (verifyToken(jwt) == "expired") {
           valid = false;
@@ -73,6 +74,7 @@ const usersRouter = async (req, res) => {
         res.end(
           JSON.stringify({
             valid: valid,
+            email: email,
           })
         );
       }

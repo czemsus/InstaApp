@@ -8,6 +8,7 @@ const login = {
       loginStatus: false,
       error: null,
       message: "",
+      email: "",
     };
   },
 
@@ -25,6 +26,9 @@ const login = {
     SET_MESSAGE(state, msg) {
       state.message = msg;
     },
+    SET_EMAIL(state, email) {
+      state.email = email;
+    },
   },
 
   getters: {
@@ -39,6 +43,9 @@ const login = {
     },
     GET_MESSAGE(state) {
       return state.message;
+    },
+    GET_EMAIL(state) {
+      return state.email;
     },
   },
 
@@ -74,6 +81,7 @@ const login = {
     async GET_VALID({ commit }, token) {
       try {
         const data = await getTokenValid(token);
+        commit("SET_EMAIL", data.email);
         return data.valid;
       } catch (err) {
         return false;
