@@ -111,6 +111,50 @@ button {
   animation: spin 2s linear infinite;
 }
 
+svg.p-component{
+  display: none;
+}
+
+path{
+  display: none;
+}
+
+span.p-component{
+  background-color: #3498db;
+  border-radius: 5px;
+  padding: 10px 20px 10px 8px;
+  color: white;
+  position: absolute;
+  bottom: 200px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  cursor: pointer;
+}
+
+button.p-component{
+  display: none;
+}
+
+.p-component p{
+  position: absolute;
+  bottom: 250px;
+  left: 50%;
+  transform: translate(-50%,0);
+}
+
+button.p-component[aria-label='Upload']{
+  background-color: #3498db;
+  content: 'Wybierz pliki z komputera';
+}
+
+input[type='file']{
+  display: none;
+}
+
+#file-upload-button{
+  background-color: #3498db;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
