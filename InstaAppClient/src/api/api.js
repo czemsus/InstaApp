@@ -37,4 +37,6 @@ const postRegisterData = (object) =>
 const getTokenValid = (token) =>
   get(`http://localhost:3000/api/user/checktoken/${token}`);
 
-export { postLoginData, postRegisterData, getTokenValid };
+const uploadPhoto = (file) => post('http://localhost:3000/api/photos',file)
+
+export { postLoginData, postRegisterData, getTokenValid, uploadPhoto };
