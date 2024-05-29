@@ -14,20 +14,17 @@ const post = async (url, object) => {
 };
 
 const get = async (url, token) => {
-  return new Promise(async (resolve, reject) => {
-    setTimeout(async () => {
-      try {
-        const response = await axios.get(url, {headers: {
-          'Authorization': 'Bearer ' + token}
-        });
-        console.log(resolve(response.data));
-        resolve(response.data);
-      } catch (err) {
-        console.log(err);
-        reject(err);
-      }
-    }, 500);
-  });
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 };
 
 const postLoginData = (object) =>
@@ -45,8 +42,14 @@ const sendImage = (data) => {
   post(path, data);
 };
 
-const fetchUserData = (token) =>{
-  get(`http://localhost:3000/api/profile`, token)
-}
+const fetchUserData = async (token) => {
+  return await get(`http://localhost:3000/api/profile`, token);
+};
 
-export { postLoginData, postRegisterData, getTokenValid, sendImage, fetchUserData };
+export {
+  postLoginData,
+  postRegisterData,
+  getTokenValid,
+  sendImage,
+  fetchUserData,
+};

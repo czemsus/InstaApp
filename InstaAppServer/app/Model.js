@@ -22,6 +22,7 @@ export class User {
     this.mail = mail;
     this.confirmed = false;
     this.bio = "";
+    this.image = null;
   }
 }
 

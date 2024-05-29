@@ -1,10 +1,4 @@
-import {
-  getTokenValid,
-  postLoginData,
-  postRegisterData,
-  sendImage,
-} from "@/api/api";
-import router from "../router/index";
+import { fetchUserData } from "@/api/api";
 
 const files = {
   state() {
@@ -21,10 +15,10 @@ const files = {
   getters: {},
 
   actions: {
-    async SEND_IMAGE({ commit }, data1, token) {
+    async FETCH_USER_DATA({ commit }, token) {
       try {
-        const data = await sendImage(data1, token);
-        console.log(data);
+        const data = await fetchUserData(token);
+        commit("SET_USER_DATA", data);
       } catch (err) {
         return false;
       }
