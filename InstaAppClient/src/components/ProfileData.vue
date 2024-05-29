@@ -25,7 +25,7 @@ export default {
   methods: {
     async fetchUser(token) {
       await this.$store.dispatch("FETCH_USER_DATA", token);
-      this.user = this.$store.state.user; // Assuming your store state has user data after FETCH_USER_DATA
+      this.user = this.$store.state.user;
     },
     getToken() {
       return this.$store.getters.GET_TOKEN;

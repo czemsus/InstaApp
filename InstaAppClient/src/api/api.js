@@ -68,6 +68,9 @@ const patchUserData = async (obj, token) => {
   return patch("http://localhost:3000/api/profile", obj, token);
 };
 
+const getPhotos = async (token) => {
+  return await get(`http://localhost:3000/api/photos`, token);
+};
 export {
   postLoginData,
   postRegisterData,
@@ -75,4 +78,5 @@ export {
   sendImage,
   fetchUserData,
   patchUserData,
+  getPhotos,
 };

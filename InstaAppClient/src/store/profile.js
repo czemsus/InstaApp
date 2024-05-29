@@ -1,10 +1,11 @@
-import { fetchUserData, patchUserData } from "@/api/api";
+import { fetchUserData, getPhotos, patchUserData } from "@/api/api";
 import router from "../router/index";
 
 const profile = {
   state() {
     return {
       userData: null,
+      userPhotos: [],
     };
   },
 
@@ -12,11 +13,17 @@ const profile = {
     SET_USER_DATA(state, user) {
       state.userData = user;
     },
+    SET_USER_PHOTOS(state, photos) {
+      state.userPhotos = photos;
+    },
   },
 
   getters: {
     GET_USER_DATA(state) {
       return state.userData;
+    },
+    GET_USER_PHOTOS(state) {
+      return state.userPhotos;
     },
   },
 
@@ -33,6 +40,18 @@ const profile = {
       try {
         const data = await patchUserData(obj, token);
         router.push("/profile");
+      } catch (err) {
+        console.error("Error patching user data:", err);
+        return false;
+      }
+    },
+    async GET_USER_PHOTOS({ commit, rootState }, email) {
+      try {
+        const data = await getPhotos();
+        let photos = data.data.filter(
+          (photo) => photo.album == rootState.profile.userData.email
+        );
+        commit("SET_USER_PHOTOS", photos);
       } catch (err) {
         console.error("Error patching user data:", err);
         return false;
