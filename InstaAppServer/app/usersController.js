@@ -65,9 +65,14 @@ export const usersController = {
     let userToVerify = users.find((user) => user.mail == mail);
     userToVerify.confirmed = true;
   },
-  modifyUserData(email, name, lastname) {
+  modifyUserData(email, name, lastname, bio) {
     let user = users.find((user) => user.mail == email);
-    user.name = name;
-    user.lastname = lastname;
+    if (name) {
+      user.name = name;
+    }
+    if (lastname) {
+      user.lastname = lastname;
+    }
+    user.bio = bio;
   },
 };

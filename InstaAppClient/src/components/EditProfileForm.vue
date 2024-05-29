@@ -8,12 +8,17 @@
       <button>Zmień zdjęcie</button>
     </div>
     <label for="name">Imię</label>
-    <input type="text" name="name" :placeholder="user.name" />
+    <input type="text" name="name" :placeholder="user.name" v-model="newName" />
     <label for="lastname">Nazwisko</label>
-    <input type="text" name="lastname" :placeholder="user.lastname" />
+    <input
+      type="text"
+      name="lastname"
+      :placeholder="user.lastname"
+      v-model="newLastname"
+    />
     <label for="bio">Biogram</label>
-    <textarea name="bio" :placeholder="user.bio"></textarea>
-    <button>Prześlij</button>
+    <textarea name="bio" :placeholder="user.bio" v-model="newBio"></textarea>
+    <button @click="patchUserData">Prześlij</button>
   </div>
 </template>
 
@@ -22,6 +27,9 @@ export default {
   data() {
     return {
       user: {},
+      newName: "",
+      newLastname: "",
+      newBio: "",
     };
   },
   methods: {
@@ -34,6 +42,17 @@ export default {
     },
     getUser() {
       return this.$store.getters.GET_USER_DATA;
+    },
+    patchUserData() {
+      let token = this.getToken();
+      this.$store.dispatch("PATCH_USER_DATA", {
+        obj: {
+          name: this.newName,
+          lastname: this.newLastname,
+          bio: this.newBio,
+        },
+        token: token,
+      });
     },
   },
   async created() {

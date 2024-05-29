@@ -1,4 +1,4 @@
-import { fetchUserData } from "@/api/api";
+import { fetchUserData, patchUserData } from "@/api/api";
 import router from "../router/index";
 
 const profile = {
@@ -24,9 +24,17 @@ const profile = {
     async FETCH_USER_DATA({ commit }, token) {
       try {
         const data = await fetchUserData(token);
-        console.log(data);
         commit("SET_USER_DATA", data);
       } catch (err) {
+        return false;
+      }
+    },
+    async PATCH_USER_DATA({ commit }, { obj, token }) {
+      try {
+        const data = await patchUserData(obj, token);
+        router.push("/profile");
+      } catch (err) {
+        console.error("Error patching user data:", err);
         return false;
       }
     },

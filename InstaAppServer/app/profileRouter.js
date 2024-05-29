@@ -3,6 +3,7 @@ import getRequestData from "./getRequestData.js";
 import { usersController } from "./usersController.js";
 import { verifyToken } from "./jwt.js";
 import { users } from "./Model.js";
+import { decode } from "punycode";
 
 const __dirname = path.resolve();
 
@@ -18,7 +19,6 @@ const profileRouter = async (req, res) => {
           res.writeHead(200, {
             "Content-Type": "text/plain;charset=utf-8",
           });
-          console.log(user);
           res.end(
             JSON.stringify({
               email: user.mail,
@@ -55,7 +55,8 @@ const profileRouter = async (req, res) => {
           usersController.modifyUserData(
             decoded.email,
             data.name,
-            data.lastname
+            data.lastname,
+            data.bio
           );
           res.writeHead(200, {
             "Content-Type": "text/plain;charset=utf-8",
@@ -76,7 +77,6 @@ const profileRouter = async (req, res) => {
           );
         }
       }
-      break;
       break;
   }
 };

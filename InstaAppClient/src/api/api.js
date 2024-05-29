@@ -27,6 +27,22 @@ const get = async (url, token) => {
   }
 };
 
+const patch = async (url, object, token) => {
+  try {
+    const response = await axios.patch(url, object, {
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("axios", response.data);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const postLoginData = (object) =>
   post("http://localhost:3000/api/user/login", object);
 
@@ -46,10 +62,16 @@ const fetchUserData = async (token) => {
   return await get(`http://localhost:3000/api/profile`, token);
 };
 
+const patchUserData = async (obj, token) => {
+  console.log(token);
+  return patch("http://localhost:3000/api/profile", obj, token);
+};
+
 export {
   postLoginData,
   postRegisterData,
   getTokenValid,
   sendImage,
   fetchUserData,
+  patchUserData,
 };
