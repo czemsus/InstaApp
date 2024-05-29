@@ -55,6 +55,7 @@ const getTokenValid = (token) =>
 const sendImage = (data) => {
   let token = localStorage.getItem("userToken");
   let path = `http://localhost:3000/api/photos/${token}`;
+  console.log(path);
   post(path, data);
 };
 

@@ -1,7 +1,7 @@
 <template>
   <div class="overlay" @click="closeForm" v-if="a">
     <div class="next" v-show="selected">
-      <button @click="sendImage($event)">Prześlij</button>
+      <button @click="sendImage()">Prześlij</button>
       <button @click="dontShow()" class="anuluj">Anuluj</button>
     </div>
 
@@ -77,11 +77,14 @@ export default {
       };
       reader.readAsDataURL(file);
     },
-    sendImage(event) {
+    sendImage() {
+      console.log("abc");
       const formdata = new FormData();
       formdata.append("album", "user_album");
       formdata.append("file", this.file);
-      this.$store.dispatch("SEND_IMAGE", formdata);
+      console.log(formdata);
+
+      this.$store.dispatch("SEND_IMAGE", formdata, this.token);
     },
     handleDrop(event) {
       const files = event.dataTransfer.files;
@@ -162,11 +165,12 @@ button {
   position: absolute;
   right: 20px;
   cursor: pointer;
+  width: 100px;
 }
 
 .anuluj {
   position: absolute;
-  left: -500px;
   color: red;
+  left: 20px;
 }
 </style>
