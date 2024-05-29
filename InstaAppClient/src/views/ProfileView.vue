@@ -7,7 +7,7 @@
           <ProfileData />
         </div>
         <div class="user-photos">
-          <div v-for="photo in getUserPhotos()">abc</div>
+          <PhotoComponent v-for="photo in getUserPhotos()" :id="photo.id" />
         </div>
       </div>
     </div>
@@ -17,6 +17,7 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import ProfileData from "@/components/ProfileData.vue";
+import PhotoComponent from "@/components/icons/PhotoComponent.vue";
 
 export default {
   data() {
@@ -59,6 +60,7 @@ export default {
   components: {
     Navbar,
     ProfileData,
+    PhotoComponent,
   },
 };
 </script>
@@ -67,5 +69,11 @@ export default {
 .main {
   display: flex;
   flex-direction: row;
+}
+
+.user-photos {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10vh 20vw;
 }
 </style>
