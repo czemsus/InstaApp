@@ -124,4 +124,15 @@ export default {
 .desc {
   font-size: 70%;
 }
+
+button {
+  background-color: skyblue;
+  border-radius: 10px;
+  border: 1px solid lightgrey;
+  color: aliceblue;
+  margin-top: 20px;
+  padding: 12px 60px;
+  display: flex;
+  justify-content: center;
+}
 </style>
