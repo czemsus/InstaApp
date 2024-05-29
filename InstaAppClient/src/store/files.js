@@ -24,6 +24,7 @@ const files = {
     async SEND_IMAGE({ commit }, data1, token) {
       try {
         const data = await sendImage(data1, token);
+        console.log(data);
       } catch (err) {
         return false;
       }

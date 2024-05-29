@@ -1,6 +1,6 @@
 ###GET - wyswietl dane profilu
 GET  http://localhost:3000/api/profile
-authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5hbWVhZEBlbWFpbC5wbCIsImlhdCI6MTcxNjE5MzkyMSwiZXhwIjoxNzE2MTkzOTUxfQ.FwuQEI1V3DQxRPA952BknxG9Y3Kvto5kHVR0IVjmU9Q
+authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1pa29sYWpzb2xhcnoxMUBnbWFpbC5jb20iLCJpYXQiOjE3MTY5NjU0MDgsImV4cCI6MTcxNjk2OTAwOH0.mw9366GU7AAazHPFFnNXusPALzBhCr5IuSyKt256Yz0
 
 ###Patch - profile
 PATCH   http://localhost:3000/api/profile

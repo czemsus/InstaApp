@@ -13,11 +13,14 @@ const post = async (url, object) => {
   });
 };
 
-const get = async (url) => {
+const get = async (url, token) => {
   return new Promise(async (resolve, reject) => {
     setTimeout(async () => {
       try {
-        const response = await axios.get(url);
+        const response = await axios.get(url, {headers: {
+          'Authorization': 'Bearer ' + token}
+        });
+        console.log(resolve(response.data));
         resolve(response.data);
       } catch (err) {
         console.log(err);
@@ -42,4 +45,8 @@ const sendImage = (data) => {
   post(path, data);
 };
 
-export { postLoginData, postRegisterData, getTokenValid, sendImage };
+const fetchUserData = (token) =>{
+  get(`http://localhost:3000/api/profile`, token)
+}
+
+export { postLoginData, postRegisterData, getTokenValid, sendImage, fetchUserData };

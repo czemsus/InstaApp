@@ -76,6 +76,7 @@ const login = {
         commit("SET_MESSAGE", err.message || "Register failed");
       } finally {
         commit("SET_LOGIN_LOADER", false);
+        router.push('/login')
       }
     },
     async GET_VALID({ commit }, token) {

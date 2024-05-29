@@ -14,16 +14,18 @@ const profileRouter = async (req, res) => {
                 let token = usersController.getTokenFromUrl(req,res)
                 if(token != 'expired'){
                     let decoded = verifyToken(token)
+
                     let user = users.find((user)=> user.mail == decoded.email)
-                    let msg = "juz jest taki mail"
                     res.writeHead(200, {
                         "Content-Type": "text/plain;charset=utf-8",
                     });
+                    console.log(user);
                     res.end(
                         JSON.stringify({
                             email: user.mail,
                             name: user.name,
-                            lastname: user.lastname
+                            lastname: user.lastname,
+                            bio: user.bio
                         })
                     );
                 }else{
