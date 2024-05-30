@@ -38,7 +38,22 @@
         <span :class="{ red: description.length === 106 }">
           {{ description.length }}/106
         </span>
+        <label for="tags">Tagi</label>
+        <div class="tags-box" v-show="selected">
+          <input
+            type="text"
+            class="tags-input"
+            maxlength="16"
+            v-model="newTag"
+            name="tags"
+          />
+          <span class="add" @click="addToTags(newTag)">+</span>
+          <div class="tagsList">
+            <TagElement v-for="tag in tagsList" :value="tag" />
+          </div>
+        </div>
       </div>
+
       <div
         v-if="thumbnailUrl"
         class="thumbnail"
@@ -51,6 +66,7 @@
 <script>
 import FileUpload from "primevue/fileupload";
 import { mapGetters } from "vuex";
+import TagElement from "./TagElement.vue";
 
 export default {
   data() {
@@ -62,6 +78,8 @@ export default {
       a: true,
       bio: "",
       description: "",
+      newTag: "",
+      tagsList: [],
     };
   },
   created() {
@@ -124,9 +142,17 @@ export default {
     getToken() {
       return this.$store.getters.GET_TOKEN;
     },
+    addToTags(tag) {
+      if (tag) {
+        console.log(tag);
+        this.tagsList.push(tag);
+        this.newTag = "";
+      }
+    },
   },
   components: {
     FileUpload,
+    TagElement,
   },
 };
 </script>
@@ -174,7 +200,7 @@ span {
   height: 100%;
   background-size: cover;
   background-position: center;
-  border-radius: 0px 0px 8px 8px;
+  border-radius: 0px 0px 0px 8px;
   z-index: 3;
 }
 
@@ -215,6 +241,13 @@ button {
   border-radius: 4px;
 }
 
+.tagsList {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .description-box {
   position: absolute;
   right: -100px;
@@ -223,12 +256,34 @@ button {
   height: 600px;
   background: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 0px 0px 8px 0px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+.tags-box {
+  position: relative;
+}
 textarea {
   border: none;
   height: 150px;
+}
+
+input {
+  outline: none;
+  background-color: white;
+  margin-top: 20px;
+  border-radius: 0px 18px 18px 0px;
+  overflow: hidden;
+}
+
+.add {
+  position: absolute;
+  border: 1px solid lightgray;
+  font-size: 180%;
+  padding: 0px 8px;
+  border-radius: 50%;
+  right: 0px;
+  top: 21px;
+  cursor: pointer;
 }
 </style>
