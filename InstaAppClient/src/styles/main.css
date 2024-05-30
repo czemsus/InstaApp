@@ -68,8 +68,6 @@ input {
   width: 100%;
 }
 
-
-
 .lined-text {
   display: flex;
   align-items: center;
@@ -153,4 +151,16 @@ input[type="file"] {
   100% {
     transform: rotate(360deg);
   }
+}
+
+textarea {
+  resize: none;
+  font-family: inherit;
+  font-size: inherit;
+  overflow: hidden;
+  outline: none;
+}
+
+.red {
+  color: red;
 }

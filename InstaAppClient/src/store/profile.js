@@ -51,10 +51,19 @@ const profile = {
         let photos = data.data.filter(
           (photo) => photo.album == rootState.profile.userData.email
         );
+
         commit("SET_USER_PHOTOS", photos);
       } catch (err) {
         console.error("Error patching user data:", err);
         return false;
+      }
+    },
+    async RELOAD_USER_DATA({ dispatch, getters }) {
+      const token = getters.GET_TOKEN;
+      if (token) {
+        await dispatch("FETCH_USER_DATA", token);
+        const user = getters.GET_USER_DATA;
+        await dispatch("GET_USER_PHOTOS", user.email);
       }
     },
   },

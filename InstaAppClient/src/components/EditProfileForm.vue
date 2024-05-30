@@ -89,9 +89,6 @@ input {
 
 textarea {
   height: 200px;
-  resize: none;
-  font-family: inherit;
-  font-size: inherit;
   padding: 10px;
   margin: 30px 0px;
 }

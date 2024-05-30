@@ -63,6 +63,7 @@ img {
   flex-direction: column;
   border-right: 1px solid lightgray;
   padding-right: 70px;
+  min-width: 306px;
 }
 
 .logo {

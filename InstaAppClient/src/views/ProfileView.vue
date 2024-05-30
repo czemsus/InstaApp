@@ -7,7 +7,11 @@
           <ProfileData />
         </div>
         <div class="user-photos">
-          <PhotoComponent v-for="photo in getUserPhotos()" :id="photo.id" />
+          <PhotoComponent
+            v-for="photo in photos"
+            :key="photo.id"
+            :id="photo.id"
+          />
         </div>
       </div>
     </div>
@@ -22,40 +26,26 @@ import PhotoComponent from "@/components/icons/PhotoComponent.vue";
 export default {
   data() {
     return {
-      user: {},
-      photos: [],
+      user: this.$store.getters.GET_USER_DATA,
+      photos: this.$store.getters.GET_USER_PHOTOS,
     };
   },
-  methods: {
-    async fetchUser(token) {
-      await this.$store.dispatch("FETCH_USER_DATA", token);
-      this.user = this.$store.state.user;
+  watch: {
+    "$store.getters.GET_USER_DATA": {
+      handler(newValue) {
+        this.user = newValue;
+      },
+      immediate: true,
     },
-    getToken() {
-      return this.$store.getters.GET_TOKEN;
-    },
-    getUser() {
-      return this.$store.getters.GET_USER_DATA;
-    },
-    getUserPhotos() {
-      return this.$store.getters.GET_USER_PHOTOS;
-    },
-    async fetchUserPhotos() {
-      await this.$store.dispatch("GET_USER_PHOTOS", this.getUser().mail);
+    "$store.getters.GET_USER_PHOTOS": {
+      handler(newValue) {
+        this.photos = newValue;
+      },
+      immediate: true,
     },
   },
-  async created() {
-    try {
-      const token = this.getToken();
-      if (token) {
-        await this.fetchUser(token);
-        await this.fetchUserPhotos(this.getUser().email);
-        console.log(this.getUserPhotos());
-        this.user = this.getUser();
-      }
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-    }
+  created() {
+    this.$store.dispatch("RELOAD_USER_DATA");
   },
   components: {
     Navbar,

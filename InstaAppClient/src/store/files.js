@@ -23,8 +23,8 @@ const files = {
   actions: {
     async SEND_IMAGE({ commit }, data1, token) {
       try {
-        console.log("abc");
         const data = await sendImage(data1, token);
+        router.push("/profile");
       } catch (err) {
         return false;
       }

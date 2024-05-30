@@ -1,8 +1,8 @@
 <template>
   <div class="overlay" @click="closeForm" v-if="a">
     <div class="next" v-show="selected">
-      <button @click="sendImage()">Prześlij</button>
-      <button @click="dontShow()" class="anuluj">Anuluj</button>
+      <button @click="sendImage" v-show="shouldShowButtons">Prześlij</button>
+      <button @click="dontShow" class="anuluj">Anuluj</button>
     </div>
 
     <div
@@ -26,6 +26,19 @@
           </div>
         </template>
       </FileUpload>
+      <div class="description-box" v-show="selected">
+        <label for="name">Opis</label>
+        <textarea
+          MaxLength="106"
+          v-model="description"
+          placeholder="Dodaj opis zdjęcia"
+          class="description-input"
+          name="desc"
+        />
+        <span :class="{ red: description.length === 106 }">
+          {{ description.length }}/106
+        </span>
+      </div>
       <div
         v-if="thumbnailUrl"
         class="thumbnail"
@@ -36,8 +49,8 @@
 </template>
 
 <script>
-import router from "@/router";
 import FileUpload from "primevue/fileupload";
+import { mapGetters } from "vuex";
 
 export default {
   data() {
@@ -47,10 +60,18 @@ export default {
       file: null,
       token: "",
       a: true,
+      bio: "",
+      description: "",
     };
   },
   created() {
     this.token = this.getToken();
+  },
+  computed: {
+    ...mapGetters(["GET_TOKEN"]),
+    shouldShowButtons() {
+      return this.selected && this.description.trim() !== "";
+    },
   },
   methods: {
     dontShow() {
@@ -77,14 +98,21 @@ export default {
       };
       reader.readAsDataURL(file);
     },
-    sendImage() {
-      console.log("abc");
+    reloadProfile() {
+      this.$store.dispatch("RELOAD_USER_DATA");
+    },
+    async sendImage() {
+      console.log("Sending image...");
       const formdata = new FormData();
       formdata.append("album", "user_album");
       formdata.append("file", this.file);
+      formdata.append("description", this.description);
+
       console.log(formdata);
 
-      this.$store.dispatch("SEND_IMAGE", formdata, this.token);
+      await this.$store.dispatch("SEND_IMAGE", { formdata, token: this.token });
+      this.dontShow();
+      this.reloadProfile();
     },
     handleDrop(event) {
       const files = event.dataTransfer.files;
@@ -104,6 +132,12 @@ export default {
 </script>
 
 <style scoped>
+span {
+  font-size: 60%;
+  position: absolute;
+  right: 50px;
+  top: 200px;
+}
 .overlay {
   position: fixed;
   top: 0;
@@ -135,7 +169,7 @@ export default {
 .thumbnail {
   position: absolute;
   top: 0;
-  left: 0;
+  left: -100px;
   width: 100%;
   height: 100%;
   background-size: cover;
@@ -150,7 +184,7 @@ export default {
   padding: 20px;
   border-radius: 8px 8px 0 0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  width: 600px;
+  width: 800px;
   height: 50px;
   z-index: 4;
   top: 124px;
@@ -172,5 +206,29 @@ button {
   position: absolute;
   color: red;
   left: 20px;
+}
+
+.description-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 20px;
+  border-radius: 4px;
+}
+
+.description-box {
+  position: absolute;
+  right: -100px;
+  top: 0px;
+  width: 200px;
+  height: 600px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+textarea {
+  border: none;
+  height: 150px;
 }
 </style>
