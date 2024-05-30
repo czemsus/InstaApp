@@ -1,7 +1,7 @@
 <template>
   <div class="overlay" @click="closeForm" v-if="a">
     <div class="next" v-show="selected">
-      <button @click="sendImage" v-show="shouldShowButtons">Prześlij</button>
+      <button @click="sendImage">Prześlij</button>
       <button @click="dontShow" class="anuluj">Anuluj</button>
     </div>
 
@@ -49,7 +49,11 @@
           />
           <span class="add" @click="addToTags(newTag)">+</span>
           <div class="tagsList">
-            <TagElement v-for="tag in tagsList" :value="tag" />
+            <TagElement
+              v-for="(tag, index) in tagsList"
+              :value="tag"
+              @delete="deleteItem(index)"
+            />
           </div>
           <div class="msg" style="color: red">{{ msg }}</div>
           <span id="listLen" :class="{ red: tagsList.length === 8 }"
@@ -157,6 +161,11 @@ export default {
           this.msg = "Jest już taki tag!!!";
         }
       }
+    },
+    deleteItem(index) {
+      this.tagsList = this.tagsList.filter(
+        (tag) => tag != this.tagsList[index]
+      );
     },
   },
   components: {
