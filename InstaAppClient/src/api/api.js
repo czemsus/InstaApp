@@ -52,9 +52,9 @@ const postRegisterData = (object) =>
 const getTokenValid = (token) =>
   get(`http://localhost:3000/api/user/checktoken/${token}`);
 
-const sendImage = (data) => {
-  let token = localStorage.getItem("userToken");
-  let path = `http://localhost:3000/api/photos/${token}`;
+const sendImage = (data, token) => {
+  let token1 = localStorage.getItem("userToken");
+  let path = `http://localhost:3000/api/photos/${token1}`;
   console.log(path);
   post(path, data);
 };

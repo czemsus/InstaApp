@@ -96,7 +96,14 @@ const imageRouter = async (req, res) => {
                   message: "Plik przesłany pomyślnie",
                 })
               );
-              JsonController.add(email, files.file.name, newPath);
+              let tags = JSON.parse(fields.tags || "[]");
+              JsonController.add(
+                email,
+                files.file.name,
+                newPath,
+                tags,
+                fields.description
+              );
             }
           });
         });

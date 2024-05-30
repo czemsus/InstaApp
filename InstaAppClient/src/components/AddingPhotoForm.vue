@@ -134,6 +134,7 @@ export default {
       formdata.append("album", "user_album");
       formdata.append("file", this.file);
       formdata.append("description", this.description);
+      formdata.append("tags", JSON.stringify(this.tagsList));
 
       console.log(formdata);
 

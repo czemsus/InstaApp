@@ -21,9 +21,9 @@ const files = {
   getters: {},
 
   actions: {
-    async SEND_IMAGE({ commit }, data1, token) {
+    async SEND_IMAGE({ commit }, { formdata, token }) {
       try {
-        const data = await sendImage(data1, token);
+        const data = await sendImage(formdata, token);
         router.push("/profile");
       } catch (err) {
         return false;

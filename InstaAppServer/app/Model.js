@@ -1,7 +1,7 @@
 import { encryptPass } from "./bcrypt.js";
 
 export default class Photo {
-  constructor(album, originalName, url) {
+  constructor(album, originalName, url, tags, desc) {
     this.id = Date.now();
     this.album = album;
     this.originalName = originalName;
@@ -9,8 +9,8 @@ export default class Photo {
     this.url = url;
     this.lastChange = "original";
     this.history = [{ status: "original", timestamp: Date.now() }];
-    this.tags = [];
-    this.desc = "";
+    this.tags = tags;
+    this.desc = desc;
   }
 }
 
