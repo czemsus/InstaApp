@@ -1,18 +1,13 @@
 <template>
   <div>
     <p>{{ value }}</p>
-    <span class="del" @click="deleteItem"><i class="fas fa-trash"></i></span>
+    <span class="del"><i class="fas fa-trash"></i></span>
   </div>
 </template>
 
 <script>
 export default {
   props: ["value"],
-  methods: {
-    deleteItem() {
-      this.$emit("delete", this.value);
-    },
-  },
 };
 </script>
 
