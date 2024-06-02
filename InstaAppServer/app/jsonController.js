@@ -17,4 +17,16 @@ export default class JsonController {
   static getPhotos() {
     return this.images;
   }
+
+  static editPhoto(id, obj) {
+    let photo = this.images.find((photo) => photo.id === id);
+    console.log(obj);
+    console.log(photo);
+    if (photo) {
+      photo.tags = obj.tags;
+      photo.desc = obj.desc;
+    } else {
+      throw new Error(`Photo with id ${id} not found`);
+    }
+  }
 }

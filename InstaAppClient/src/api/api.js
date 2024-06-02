@@ -29,6 +29,7 @@ const get = async (url, token) => {
 
 const patch = async (url, object, token) => {
   try {
+    console.log(object);
     const response = await axios.patch(url, object, {
       headers: {
         Authorization: "Bearer " + token,
@@ -71,6 +72,16 @@ const patchUserData = async (obj, token) => {
 const getPhotos = async (token) => {
   return await get(`http://localhost:3000/api/photos`, token);
 };
+
+const editPhoto = async (object) => {
+  let token1 = localStorage.getItem("userToken");
+  console.log(`http://localhost:3000/api/photos/tags/edit/${object.id}`);
+  return await patch(
+    `http://localhost:3000/api/tags/edit/${object.id}`,
+    object,
+    token1
+  );
+};
 export {
   postLoginData,
   postRegisterData,
@@ -79,4 +90,5 @@ export {
   fetchUserData,
   patchUserData,
   getPhotos,
+  editPhoto,
 };

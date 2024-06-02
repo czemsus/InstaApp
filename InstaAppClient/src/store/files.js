@@ -1,9 +1,4 @@
-import {
-  getTokenValid,
-  postLoginData,
-  postRegisterData,
-  sendImage,
-} from "@/api/api";
+import { sendImage, editPhoto } from "@/api/api";
 import router from "../router/index";
 
 const files = {
@@ -24,6 +19,20 @@ const files = {
     async SEND_IMAGE({ commit }, { formdata, token }) {
       try {
         const data = await sendImage(formdata, token);
+        router.push("/profile");
+      } catch (err) {
+        return false;
+      }
+    },
+    async MODIFY_IMAGE_DATA({ commit }, { tags, desc, id }) {
+      try {
+        let object = {
+          tags: tags,
+          desc: desc,
+          id: id,
+        };
+        console.log(object);
+        const data = await editPhoto(object);
         router.push("/profile");
       } catch (err) {
         return false;

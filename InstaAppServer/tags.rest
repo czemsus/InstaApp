@@ -26,7 +26,7 @@ PATCH  http://localhost:3000/api/photos/tags/1712730031596
 
 ###mass patch
 
-PATCH  http://localhost:3000/api/photos/tags/mass/1712730031596
+PATCH  http://localhost:3000/api/photos/tags/edit/1712730031596
 
 {
     "array":[
@@ -40,7 +40,8 @@ PATCH  http://localhost:3000/api/photos/tags/mass/1712730031596
 {
     "name": "#nowytag2"
 }
-]
+],
+"desc": "opis"
 }
 
 ###get tags
