@@ -6,6 +6,7 @@ import { usersController } from "./usersController.js";
 import { createToken, verifyToken } from "./jwt.js";
 import { decryptPass } from "./bcrypt.js";
 import { sendMail } from "./sendMail.js";
+import fs from "fs";
 
 const __dirname = path.resolve();
 
@@ -86,7 +87,25 @@ const usersRouter = async (req, res) => {
         if (usersController.register(data)) {
           let token = await createToken(data.email);
           sendMail(data.email, token);
+          let dirPath = path.join(__dirname, "uploads", data.email);
+          if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+          }
+          console.log(fs.existsSync(dirPath));
+          console.log(
+            fs.existsSync(path.join(__dirname, "uploads", "pfp.png"))
+          );
 
+          let sourcePath = path.join(__dirname, "uploads", "pfp.png");
+          let destinationPath = path.join(dirPath, "profile.png");
+
+          fs.copyFile(sourcePath, destinationPath, (err) => {
+            if (err) {
+              console.error("Error copying the file:", err);
+            } else {
+              console.log("File successfully copied to", destinationPath);
+            }
+          });
           res.writeHead(200, {
             "Content-Type": "text/plain;charset=utf-8",
           });

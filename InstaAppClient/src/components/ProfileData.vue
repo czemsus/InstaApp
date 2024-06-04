@@ -1,12 +1,18 @@
 <template>
   <div class="main" v-if="user">
     <div class="profile-picture">
-      <img class="profile-image" src="../assets/pfp.png" />
+      <img
+        class="profile-image"
+        src="http://localhost:3000/uploads/mikolajsolarz11@gmail.com/pfp.png"
+      />
     </div>
     <div class="user-data">
       <div class="user-mail">
         {{ user.email }}
-
+        <!-- <img
+          src="http://localhost:3000/InstaAppServer/uploads/pfp.png"
+          alt=""
+        /> -->
         <RouterLink to="/edit">Edytuj profil</RouterLink>
       </div>
       <div class="user-name">{{ user.name }} {{ user.lastname }}</div>

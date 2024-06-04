@@ -141,6 +141,7 @@ export default {
       await this.$store.dispatch("SEND_IMAGE", { formdata, token: this.token });
       this.dontShow();
       this.reloadProfile();
+      this.$store.dispatch("RELOAD_USER_DATA");
     },
     handleDrop(event) {
       const files = event.dataTransfer.files;
