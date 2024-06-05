@@ -4,6 +4,7 @@ import { usersController } from "./usersController.js";
 import { verifyToken } from "./jwt.js";
 import { users } from "./Model.js";
 import { decode } from "punycode";
+import fs from 'fs'
 
 const __dirname = path.resolve();
 
@@ -39,6 +40,22 @@ const profileRouter = async (req, res) => {
           );
         }
       } else if (req.url == "/api/logout") {
+      }else if(req.url == '/api/profile/pfp'){
+        let token = usersController.getTokenFromUrl(req, res);
+        console.log(token);
+        console.log(req.headers);
+        let data = verifyToken(token)
+        console.log(data);
+        let imagePath = path.join(__dirname,"uploads", data.email, "profile.png")
+        fs.readFile(imagePath, (err, data) => {
+          if (err) {
+            res.writeHead(404, { "Content-Type": "text/plain" });
+            res.end("Image not found");
+          } else {
+            res.writeHead(200, { "Content-Type": "image/jpeg" });
+            res.end(data);
+          }
+        });
       }
       break;
     case "POST":

@@ -16,6 +16,7 @@ const login = {
     SET_USER_TOKEN(state, token) {
       state.userToken = token;
       localStorage.setItem("userToken", token);
+      console.log(state.userToken);
     },
     SET_LOGIN_LOADER(state, status) {
       state.loginStatus = status;

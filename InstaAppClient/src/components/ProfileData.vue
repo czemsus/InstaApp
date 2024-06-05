@@ -3,16 +3,12 @@
     <div class="profile-picture">
       <img
         class="profile-image"
-        src="http://localhost:3000/uploads/mikolajsolarz11@gmail.com/pfp.png"
+        :src="profileImage"
       />
     </div>
     <div class="user-data">
       <div class="user-mail">
         {{ user.email }}
-        <!-- <img
-          src="http://localhost:3000/InstaAppServer/uploads/pfp.png"
-          alt=""
-        /> -->
         <RouterLink to="/edit">Edytuj profil</RouterLink>
       </div>
       <div class="user-name">{{ user.name }} {{ user.lastname }}</div>
@@ -22,10 +18,15 @@
 </template>
 
 <script>
+import profile from '@/store/profile';
+import axios from 'axios';
+
 export default {
   data() {
     return {
       user: {},
+      token: null,
+      profileImage: null
     };
   },
   methods: {
@@ -39,9 +40,31 @@ export default {
     getUser() {
       return this.$store.getters.GET_USER_DATA;
     },
+    async fetchProfileImage() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/profile/pfp', {
+          headers: {
+            Authorization: `Bearer ${this.token}`
+          },
+          responseType: "blob"
+        });
+        console.log(response.data);
+        let reader = new FileReader();
+reader.readAsDataURL(response.data); 
+reader.onloadend = ()=> {
+  let base64data = reader.result;                
+  console.log(base64data);
+  this.profileImage = base64data
+};
+      } catch (error) {
+        console.error('Error fetching profile image', error);
+      }
+    }
   },
   async created() {
     try {
+      this.token = this.getToken()
+      await this.fetchProfileImage()
       const token = this.getToken();
       if (token) {
         await this.fetchUser(token);
