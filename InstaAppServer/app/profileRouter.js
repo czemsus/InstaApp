@@ -4,6 +4,7 @@ import { usersController } from "./usersController.js";
 import { verifyToken } from "./jwt.js";
 import { users } from "./Model.js";
 import { decode } from "punycode";
+import formidable from "formidable";
 import fs from 'fs'
 
 const __dirname = path.resolve();
@@ -59,6 +60,30 @@ const profileRouter = async (req, res) => {
       }
       break;
     case "POST":
+      if(req.url == '/api/profile/upload'){
+        const form = new formidable.IncomingForm();
+        form.parse(req, function (err, fields, files) {
+          let oldPath = files.file.path;
+          let newPath =
+            path.join(__dirname, "uploads", email, "profile.png");
+          let rawData = fs.readFileSync(files.file.path);
+
+          fs.copyFile(oldPath, newPath, function (err) {
+            if (err) {
+              console.log(err);
+            } else {
+              res.writeHead(200, {
+                "Content-Type": "text/plain;charset=utf-8",
+              });
+              res.end(
+                JSON.stringify({
+                  status: "200",
+                  message: "Plik przesłany pomyślnie",
+                })
+              );
+            }
+          })})
+      }
       break;
     case "DELETE":
       break;
