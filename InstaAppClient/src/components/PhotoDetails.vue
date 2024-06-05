@@ -102,7 +102,6 @@ export default {
     this.src = `http://localhost:3000/api/getimage/` + this.id;
     this.tagsList = this.tagi;
     this.description = this.desc;
-    console.log(this.tagsList);
   },
   components: {
     TagElement,

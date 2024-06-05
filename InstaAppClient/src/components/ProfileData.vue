@@ -1,10 +1,7 @@
 <template>
   <div class="main" v-if="user">
     <div class="profile-picture">
-      <img
-        class="profile-image"
-        :src="profileImage"
-      />
+      <img class="profile-image" :src="profileImage" style="aspect-ratio: 1" />
     </div>
     <div class="user-data">
       <div class="user-mail">
@@ -18,15 +15,15 @@
 </template>
 
 <script>
-import profile from '@/store/profile';
-import axios from 'axios';
+import profile from "@/store/profile";
+import axios from "axios";
 
 export default {
   data() {
     return {
       user: {},
       token: null,
-      profileImage: null
+      profileImage: null,
     };
   },
   methods: {
@@ -42,29 +39,30 @@ export default {
     },
     async fetchProfileImage() {
       try {
-        const response = await axios.get('http://localhost:3000/api/profile/pfp', {
-          headers: {
-            Authorization: `Bearer ${this.token}`
-          },
-          responseType: "blob"
-        });
-        console.log(response.data);
+        const response = await axios.get(
+          "http://localhost:3000/api/profile/pfp",
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+            responseType: "blob",
+          }
+        );
         let reader = new FileReader();
-reader.readAsDataURL(response.data); 
-reader.onloadend = ()=> {
-  let base64data = reader.result;                
-  console.log(base64data);
-  this.profileImage = base64data
-};
+        reader.readAsDataURL(response.data);
+        reader.onloadend = () => {
+          let base64data = reader.result;
+          this.profileImage = base64data;
+        };
       } catch (error) {
-        console.error('Error fetching profile image', error);
+        console.error("Error fetching profile image", error);
       }
-    }
+    },
   },
   async created() {
     try {
-      this.token = this.getToken()
-      await this.fetchProfileImage()
+      this.token = this.getToken();
+      await this.fetchProfileImage();
       const token = this.getToken();
       if (token) {
         await this.fetchUser(token);

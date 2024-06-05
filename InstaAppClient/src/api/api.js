@@ -1,10 +1,14 @@
 import axios from "axios";
 
-const post = async (url, object) => {
-  return new Promise(async (resolve, reject) => {
+const post = async (url, object, token) => {
+  return new Promise((resolve, reject) => {
     setTimeout(async () => {
       try {
-        const response = await axios.post(url, object);
+        const response = await axios.post(url, object, {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
         resolve(response.data);
       } catch (err) {
         reject(err);
@@ -29,14 +33,12 @@ const get = async (url, token) => {
 
 const patch = async (url, object, token) => {
   try {
-    console.log(object);
     const response = await axios.patch(url, object, {
       headers: {
         Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       },
     });
-    console.log("axios", response.data);
     return response.data;
   } catch (err) {
     console.error(err);
@@ -56,8 +58,7 @@ const getTokenValid = (token) =>
 const sendImage = (data, token) => {
   let token1 = localStorage.getItem("userToken");
   let path = `http://localhost:3000/api/photos/${token1}`;
-  console.log(path);
-  post(path, data);
+  post(path, data, token1);
 };
 
 const fetchUserData = async (token) => {
@@ -65,7 +66,6 @@ const fetchUserData = async (token) => {
 };
 
 const patchUserData = async (obj, token) => {
-  console.log(token);
   return patch("http://localhost:3000/api/profile", obj, token);
 };
 
@@ -75,13 +75,18 @@ const getPhotos = async (token) => {
 
 const editPhoto = async (object) => {
   let token1 = localStorage.getItem("userToken");
-  console.log(`http://localhost:3000/api/photos/tags/edit/${object.id}`);
   return await patch(
     `http://localhost:3000/api/tags/edit/${object.id}`,
     object,
     token1
   );
 };
+
+const sendProfilePicture = async (data) => {
+  let token = localStorage.getItem("userToken");
+  post("http://localhost:3000/api/profile/upload", data, token);
+};
+
 export {
   postLoginData,
   postRegisterData,
@@ -91,4 +96,5 @@ export {
   patchUserData,
   getPhotos,
   editPhoto,
+  sendProfilePicture,
 };

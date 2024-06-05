@@ -31,7 +31,6 @@ const files = {
           desc: desc,
           id: id,
         };
-        console.log(object);
         const data = await editPhoto(object);
         router.push("/profile");
       } catch (err) {

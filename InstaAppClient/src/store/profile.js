@@ -1,4 +1,9 @@
-import { fetchUserData, getPhotos, patchUserData } from "@/api/api";
+import {
+  fetchUserData,
+  getPhotos,
+  patchUserData,
+  sendProfilePicture,
+} from "@/api/api";
 import router from "../router/index";
 
 const profile = {
@@ -64,6 +69,14 @@ const profile = {
         await dispatch("FETCH_USER_DATA", token);
         const user = getters.GET_USER_DATA;
         await dispatch("GET_USER_PHOTOS", user.email);
+      }
+    },
+    async SEND_PROFILE_PICTURE({ commit }, { formdata }) {
+      try {
+        const data = await sendProfilePicture(formdata);
+        router.push("/profile");
+      } catch (err) {
+        return false;
       }
     },
   },

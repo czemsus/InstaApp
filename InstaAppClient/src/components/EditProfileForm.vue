@@ -1,11 +1,12 @@
 <template>
+  <SendProfilePicture v-show="showModal" @close="changeModal()" />
   <div class="form">
-    <img src="../assets/Instagram_text.png" alt="" />
+    <img src="../assets/instagram_text.png" alt="" />
 
     <div class="image">
-      <img src="../assets/pfp.png" alt="" />
+      <img :src="profileImage" alt="" width="50px" />
       <p>{{ user.email }}</p>
-      <button>Zmień zdjęcie</button>
+      <button @click="changeModal()">Zmień zdjęcie</button>
     </div>
     <label for="name">Imię</label>
     <input type="text" name="name" :placeholder="user.name" v-model="newName" />
@@ -23,6 +24,9 @@
 </template>
 
 <script>
+import axios from "axios";
+import SendProfilePicture from "./SendProfilePicture.vue";
+import AddingPhotoForm from "./AddingPhotoForm.vue";
 export default {
   data() {
     return {
@@ -30,12 +34,18 @@ export default {
       newName: "",
       newLastname: "",
       newBio: "",
+      profileImage: null,
+      token: null,
+      showModal: false,
     };
   },
   methods: {
     async fetchUser(token) {
       await this.$store.dispatch("FETCH_USER_DATA", token);
       this.user = this.$store.state.user;
+    },
+    changeModal() {
+      this.showModal = !this.showModal;
     },
     getToken() {
       return this.$store.getters.GET_TOKEN;
@@ -54,10 +64,33 @@ export default {
         token: token,
       });
     },
+    async fetchProfileImage() {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/api/profile/pfp",
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+            responseType: "blob",
+          }
+        );
+        let reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = () => {
+          let base64data = reader.result;
+          this.profileImage = base64data;
+        };
+      } catch (error) {
+        console.error("Error fetching profile image", error);
+      }
+    },
   },
   async created() {
     try {
       const token = this.getToken();
+      this.token = this.getToken();
+      await this.fetchProfileImage();
       if (token) {
         await this.fetchUser(token);
         this.user = this.getUser();
@@ -66,6 +99,7 @@ export default {
       console.error("Error fetching user data:", err);
     }
   },
+  components: { SendProfilePicture, AddingPhotoForm },
 };
 </script>
 

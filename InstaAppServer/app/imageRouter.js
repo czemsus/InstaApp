@@ -75,7 +75,6 @@ const imageRouter = async (req, res) => {
           /\/api\/photos\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
         )[1];
         let email = verifyToken(jwt).email;
-        console.log(email);
         const form = new formidable.IncomingForm();
         form.parse(req, function (err, fields, files) {
           let oldPath = files.file.path;

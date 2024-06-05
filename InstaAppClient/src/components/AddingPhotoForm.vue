@@ -129,14 +129,11 @@ export default {
       this.$store.dispatch("RELOAD_USER_DATA");
     },
     async sendImage() {
-      console.log("Sending image...");
       const formdata = new FormData();
       formdata.append("album", "user_album");
       formdata.append("file", this.file);
       formdata.append("description", this.description);
       formdata.append("tags", JSON.stringify(this.tagsList));
-
-      console.log(formdata);
 
       await this.$store.dispatch("SEND_IMAGE", { formdata, token: this.token });
       this.dontShow();

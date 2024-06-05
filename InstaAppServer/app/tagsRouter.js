@@ -4,7 +4,7 @@ import path from "path";
 import { tagsObjects } from "./Model.js";
 import TagsController from "./tagsController.js";
 import getRequestData from "./getRequestData.js";
-import JsonController from "./jsonController.js";
+import JsonController from "./JsonController.js";
 const __dirname = path.resolve();
 const tagsController = new TagsController();
 const jsonController = new JsonController();
@@ -99,14 +99,12 @@ const tagsRouter = async (req, res) => {
       }
       break;
     case "PATCH":
-      console.log("abc");
       if (req.url.match(/\/api\/tags\/edit\/([0-9]+)/)) {
         const idToEdit = parseInt(
           req.url.match(/\/api\/tags\/edit\/([0-9]+)/)[1]
         );
         let data = await getRequestData(req);
         data = JSON.parse(data);
-        console.log(data);
         JsonController.editPhoto(data.id, {
           tags: data.tags,
           desc: data.desc,

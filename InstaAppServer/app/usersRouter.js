@@ -91,10 +91,6 @@ const usersRouter = async (req, res) => {
           if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
           }
-          console.log(fs.existsSync(dirPath));
-          console.log(
-            fs.existsSync(path.join(__dirname, "uploads", "pfp.png"))
-          );
 
           let sourcePath = path.join(__dirname, "uploads", "pfp.png");
           let destinationPath = path.join(dirPath, "profile.png");
@@ -103,7 +99,6 @@ const usersRouter = async (req, res) => {
             if (err) {
               console.error("Error copying the file:", err);
             } else {
-              console.log("File successfully copied to", destinationPath);
             }
           });
           res.writeHead(200, {

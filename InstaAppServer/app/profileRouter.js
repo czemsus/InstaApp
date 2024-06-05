@@ -5,7 +5,7 @@ import { verifyToken } from "./jwt.js";
 import { users } from "./Model.js";
 import { decode } from "punycode";
 import formidable from "formidable";
-import fs from 'fs'
+import fs from "fs";
 
 const __dirname = path.resolve();
 
@@ -41,13 +41,15 @@ const profileRouter = async (req, res) => {
           );
         }
       } else if (req.url == "/api/logout") {
-      }else if(req.url == '/api/profile/pfp'){
+      } else if (req.url == "/api/profile/pfp") {
         let token = usersController.getTokenFromUrl(req, res);
-        console.log(token);
-        console.log(req.headers);
-        let data = verifyToken(token)
-        console.log(data);
-        let imagePath = path.join(__dirname,"uploads", data.email, "profile.png")
+        let data = verifyToken(token);
+        let imagePath = path.join(
+          __dirname,
+          "uploads",
+          data.email,
+          "profile.png"
+        );
         fs.readFile(imagePath, (err, data) => {
           if (err) {
             res.writeHead(404, { "Content-Type": "text/plain" });
@@ -60,12 +62,23 @@ const profileRouter = async (req, res) => {
       }
       break;
     case "POST":
-      if(req.url == '/api/profile/upload'){
+      if (req.url == "/api/profile/upload") {
+        let token = usersController.getTokenFromUrl(req, res);
+        let data = verifyToken(token);
+        let email = data.email;
+        fs.unlink(
+          path.join(__dirname, "uploads", email, "profile.png"),
+          (err) => {
+            if (err) {
+              reject(err);
+            } else {
+            }
+          }
+        );
         const form = new formidable.IncomingForm();
         form.parse(req, function (err, fields, files) {
           let oldPath = files.file.path;
-          let newPath =
-            path.join(__dirname, "uploads", email, "profile.png");
+          let newPath = path.join(__dirname, "uploads", email, "profile.png");
           let rawData = fs.readFileSync(files.file.path);
 
           fs.copyFile(oldPath, newPath, function (err) {
@@ -82,7 +95,8 @@ const profileRouter = async (req, res) => {
                 })
               );
             }
-          })})
+          });
+        });
       }
       break;
     case "DELETE":

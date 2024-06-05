@@ -69,7 +69,6 @@ export default {
     },
     closePhoto(){
       this.clicked = null
-      console.log("abc");
     }
   }
 };
