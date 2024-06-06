@@ -37,3 +37,6 @@ Content-Type: text/plain
 
 user_album
 ------FormBoundary1234
+
+###GET
+GET http://localhost:3000/api/profile/getprofilepicture/mikolajsolarz11@gmail.com

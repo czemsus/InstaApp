@@ -2,7 +2,7 @@ import { photos } from "./Model.js";
 import fs from "fs";
 import path from "path";
 import formidable from "formidable";
-import JsonController from "./JsonController.js";
+import JsonController from "./jsonController.js";
 import getRequestData from "./getRequestData.js";
 import { verifyToken } from "./jwt.js";
 const __dirname = path.resolve();

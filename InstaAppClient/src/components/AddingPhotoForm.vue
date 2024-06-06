@@ -191,7 +191,7 @@ span {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 10;
 }
 
 .form-container {
@@ -199,7 +199,7 @@ span {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 2;
+  z-index: 20;
   position: relative;
   width: 630px;
   height: 630px;
@@ -229,7 +229,7 @@ span {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   width: 830px;
   height: 60px;
-  z-index: 4;
+  z-index: 40;
   top: 98px;
 }
 

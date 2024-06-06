@@ -1,13 +1,25 @@
 <template>
   <div class="main">
     <Navbar />
-    <p v-for="photo in photos">{{ photo }}</p>
+    <div class="photos">
+      <PhotoCard
+        v-for="photo in photos"
+        :key="photo.id"
+        :id="photo.id"
+        :desc="photo.desc"
+        :tags="photo.tags"
+        :user="photo.album"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import Navbar from "@/components/Navbar.vue";
+import PhotoCard from "@/components/PhotoCard.vue";
+
 export default {
+  components: { Navbar, PhotoCard },
   data() {
     return {
       photos: [],
@@ -18,10 +30,9 @@ export default {
       return this.$store.getters.GET_LIST;
     },
   },
-  components: { Navbar },
   async created() {
     await this.$store.dispatch("FETCH_PHOTOS");
-    this.photos = await this.getPhotos();
+    this.photos = this.getPhotos();
     console.log(this.photos);
   },
 };
@@ -30,6 +41,13 @@ export default {
 <style scoped>
 .main {
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.photos {
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  align-items: center;
 }
 </style>

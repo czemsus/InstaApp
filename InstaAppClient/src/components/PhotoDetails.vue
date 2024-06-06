@@ -120,7 +120,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 10;
 }
 
 img {
@@ -140,7 +140,7 @@ img {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 2;
+  z-index: 20;
   position: relative;
   width: 680px;
   height: 680px;

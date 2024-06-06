@@ -80,6 +80,9 @@ img {
 
 .header {
   height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 9;
 }
 
 .menu a,

@@ -59,6 +59,26 @@ const profileRouter = async (req, res) => {
             res.end(data);
           }
         });
+      } else if (
+        req.url.match(
+          /\/api\/profile\/getprofilepicture\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
+        )
+      ) {
+        let emailMatch = req.url.match(
+          /\/api\/profile\/getprofilepicture\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
+        );
+        let email = emailMatch[1];
+        console.log(email);
+        let imagePath = path.join(__dirname, "uploads", email, "profile.png");
+        fs.readFile(imagePath, (err, data) => {
+          if (err) {
+            res.writeHead(404, { "Content-Type": "text/plain" });
+            res.end("Image not found");
+          } else {
+            res.writeHead(200, { "Content-Type": "image/jpeg" });
+            res.end(data);
+          }
+        });
       }
       break;
     case "POST":
