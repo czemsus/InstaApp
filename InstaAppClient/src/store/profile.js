@@ -74,7 +74,7 @@ const profile = {
     async SEND_PROFILE_PICTURE({ commit }, { formdata }) {
       try {
         const data = await sendProfilePicture(formdata);
-        router.push("/profile");
+        router.push("/edit");
       } catch (err) {
         return false;
       }

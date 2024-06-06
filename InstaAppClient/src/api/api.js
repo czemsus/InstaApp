@@ -24,6 +24,7 @@ const get = async (url, token) => {
         Authorization: "Bearer " + token,
       },
     });
+    console.log(response);
     return response.data;
   } catch (err) {
     console.log(err);
@@ -87,6 +88,10 @@ const sendProfilePicture = async (data) => {
   post("http://localhost:3000/api/profile/upload", data, token);
 };
 
+const getAllPhotos = async () => {
+  return await get("http://localhost:3000/api/photos");
+};
+
 export {
   postLoginData,
   postRegisterData,
@@ -97,4 +102,5 @@ export {
   getPhotos,
   editPhoto,
   sendProfilePicture,
+  getAllPhotos,
 };
