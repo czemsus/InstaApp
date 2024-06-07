@@ -1,19 +1,17 @@
 import axios from "axios";
 
 const post = async (url, object, token) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      try {
-        const response = await axios.post(url, object, {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-        resolve(response.data);
-      } catch (err) {
-        reject(err);
-      }
-    }, 1000);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.post(url, object, {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
+      resolve(response.data);
+    } catch (err) {
+      reject(err);
+    }
   });
 };
 
@@ -92,6 +90,11 @@ const getAllPhotos = async () => {
   return await get("http://localhost:3000/api/photos");
 };
 
+const getUserData = async (mail) => {
+  let token = localStorage.getItem("userToken");
+  return await get(`http://localhost:3000/api/user/${mail}`, token);
+};
+
 export {
   postLoginData,
   postRegisterData,
@@ -103,4 +106,5 @@ export {
   editPhoto,
   sendProfilePicture,
   getAllPhotos,
+  getUserData,
 };

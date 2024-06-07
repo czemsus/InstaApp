@@ -22,3 +22,6 @@ Content-Type: application/json
  "email":"namead@email.pl",
  "password":"password"
 }
+
+###GET
+GET http://localhost:3000/api/user/mikolajsolarz11@gmail.com

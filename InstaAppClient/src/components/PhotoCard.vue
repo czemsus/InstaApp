@@ -1,7 +1,8 @@
 <template>
   <div class="photo-card">
     <div class="user-name">
-      <img :src="profileImage" alt="" width="50px" height="50px" />
+      <p style="display: none">{{ profileimage }}</p>
+      <img :src="profileimage" alt="" width="50px" height="50px" />
       <b>{{ user }}</b>
     </div>
     <div class="image">
@@ -45,7 +46,7 @@ export default {
         reader.readAsDataURL(response.data);
         reader.onloadend = () => {
           let base64data = reader.result;
-          this.profileImage = base64data;
+          this.profileimage = base64data;
         };
       } catch (error) {
         console.error("Error fetching profile image", error);

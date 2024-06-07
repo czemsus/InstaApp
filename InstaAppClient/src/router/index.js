@@ -7,6 +7,7 @@ const RegisterView = () => import("@/views/RegisterView.vue");
 const ProfileView = () => import("@/views/ProfileView.vue");
 const EditView = () => import("@/views/EditView.vue");
 const NotFoundView = () => import("@/views/NotFoundView.vue");
+const UserView = () => import("@/views/UserView.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,12 @@ const router = createRouter({
       path: "/edit",
       name: "edit",
       component: EditView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/user/:email",
+      name: "user",
+      component: UserView,
       meta: { requiresAuth: true },
     },
     {

@@ -1,6 +1,7 @@
 import {
   fetchUserData,
   getPhotos,
+  getUserData,
   patchUserData,
   sendProfilePicture,
 } from "@/api/api";
@@ -75,6 +76,19 @@ const profile = {
       try {
         const data = await sendProfilePicture(formdata);
         router.push("/edit");
+      } catch (err) {
+        return false;
+      }
+    },
+    async GET_SOMEONES_DATA({ commit }, mail) {
+      try {
+        const data = await getUserData(mail);
+        console.log(data);
+        if (data.user[0]) {
+          commit("SET_USER_DATA", data.user[0]);
+        } else {
+          router.push("/userNotFound");
+        }
       } catch (err) {
         return false;
       }

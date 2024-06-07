@@ -78,6 +78,32 @@ const usersRouter = async (req, res) => {
             email: email,
           })
         );
+      } else if (req.url.match(/\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/)) {
+        let email = req.url.match(
+          /\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
+        )[1];
+        let user = users.filter((user) => user.mail == email);
+        console.log(email, user);
+        console.log(users);
+        if (user) {
+          res.writeHead(200, {
+            "Content-Type": "text/plain;charset=utf-8",
+          });
+          res.end(
+            JSON.stringify({
+              user: user,
+            })
+          );
+        } else {
+          res.writeHead(200, {
+            "Content-Type": "text/plain;charset=utf-8",
+          });
+          res.end(
+            JSON.stringify({
+              user: false,
+            })
+          );
+        }
       }
       break;
     case "POST":

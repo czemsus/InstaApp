@@ -43,6 +43,7 @@
               Zapisz zmiany
             </button>
           </div>
+          <div class="filters"></div>
         </div>
       </div>
     </div>
@@ -190,8 +191,6 @@ button {
   height: 680px;
   background: white;
   padding: 20px;
-  border-radius: 0px 8px 8px 0px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .tags-box {
@@ -251,5 +250,17 @@ span[id="listLen"] {
   padding: 10px 6px;
   width: 120px;
   border-radius: 14px;
+}
+
+.filters {
+  position: absolute;
+  right: -300px;
+  top: 0px;
+  width: 300px;
+  height: 680px;
+  background: white;
+  padding: 20px;
+  border-radius: 0px 8px 8px 0px;
+  border-left: 1px solid lightgrey;
 }
 </style>
