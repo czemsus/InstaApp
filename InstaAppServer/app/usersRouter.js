@@ -82,16 +82,14 @@ const usersRouter = async (req, res) => {
         let email = req.url.match(
           /\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
         )[1];
-        let user = users.filter((user) => user.mail == email);
-        console.log(email, user);
-        console.log(users);
+        let user = users.find((user) => user.mail == email);
         if (user) {
           res.writeHead(200, {
             "Content-Type": "text/plain;charset=utf-8",
           });
           res.end(
             JSON.stringify({
-              user: user,
+              user,
             })
           );
         } else {

@@ -95,6 +95,14 @@ const getUserData = async (mail) => {
   return await get(`http://localhost:3000/api/user/${mail}`, token);
 };
 
+const getUserPhotos = async (mail) => {
+  let token = localStorage.getItem("userToken");
+  return await get(
+    `http://localhost:3000/api/profile/getphotos/${mail}`,
+    token
+  );
+};
+
 export {
   postLoginData,
   postRegisterData,
@@ -107,4 +115,5 @@ export {
   sendProfilePicture,
   getAllPhotos,
   getUserData,
+  getUserPhotos,
 };

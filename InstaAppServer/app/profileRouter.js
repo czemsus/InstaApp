@@ -2,7 +2,7 @@ import path from "path";
 import getRequestData from "./getRequestData.js";
 import { usersController } from "./usersController.js";
 import { verifyToken } from "./jwt.js";
-import { users } from "./Model.js";
+import { photos, users } from "./Model.js";
 import { decode } from "punycode";
 import formidable from "formidable";
 import fs from "fs";
@@ -79,6 +79,22 @@ const profileRouter = async (req, res) => {
             res.end(data);
           }
         });
+      } else if (
+        req.url.match(/\/api\/profile\/getphotos\/([^\s@]+@[^\s@]+\.[^\s@]+)$/)
+      ) {
+        let emailMatch = req.url.match(
+          /\/api\/profile\/getphotos\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
+        );
+        let email = emailMatch[1];
+        let photos1 = photos.filter((photo) => photo.album == email);
+        res.writeHead(200, {
+          "Content-Type": "text/plain;charset=utf-8",
+        });
+        res.end(
+          JSON.stringify({
+            photos: photos1,
+          })
+        );
       }
       break;
     case "POST":

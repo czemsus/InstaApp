@@ -2,6 +2,7 @@ import {
   fetchUserData,
   getPhotos,
   getUserData,
+  getUserPhotos,
   patchUserData,
   sendProfilePicture,
 } from "@/api/api";
@@ -54,9 +55,7 @@ const profile = {
     async GET_USER_PHOTOS({ commit, rootState }, email) {
       try {
         const data = await getPhotos();
-        let photos = data.data.filter(
-          (photo) => photo.album == rootState.profile.userData.email
-        );
+        let photos = data.data.filter((photo) => photo.album == email);
 
         commit("SET_USER_PHOTOS", photos);
       } catch (err) {
@@ -84,10 +83,21 @@ const profile = {
       try {
         const data = await getUserData(mail);
         console.log(data);
-        if (data.user[0]) {
-          commit("SET_USER_DATA", data.user[0]);
+        if (data.user) {
+          commit("SET_USER_DATA", data);
         } else {
           router.push("/userNotFound");
+        }
+      } catch (err) {
+        return false;
+      }
+    },
+    async GET_SOMEONES_PHOTOS({ commit }, mail) {
+      try {
+        const data = await getUserPhotos(mail);
+        console.log(data);
+        if (data) {
+          commit("SET_USER_PHOTOS", data);
         }
       } catch (err) {
         return false;
