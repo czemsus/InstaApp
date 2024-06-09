@@ -43,7 +43,9 @@
               Zapisz zmiany
             </button>
           </div>
-          <div class="filters"></div>
+          <div class="filters">
+            <FiltersComponent />
+          </div>
         </div>
       </div>
     </div>
@@ -52,6 +54,7 @@
 
 <script>
 import TagElement from "./TagElement.vue";
+import FiltersComponent from "./FiltersComponent.vue";
 export default {
   data() {
     return {
@@ -106,6 +109,7 @@ export default {
   },
   components: {
     TagElement,
+    FiltersComponent,
   },
 };
 </script>

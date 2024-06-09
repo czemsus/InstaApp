@@ -16,14 +16,9 @@ export default {
   max-width: calc(33.33% - 10px);
   aspect-ratio: 1;
   margin: 2px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 img {
   max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
 }
 </style>
