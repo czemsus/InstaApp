@@ -79,11 +79,61 @@ export default {
       blue: 0,
       angle: 0,
       format: "",
+      w: 0,
+      h: 0,
+      t: 0,
+      l: 0,
     };
   },
   methods: {
-    ChangePhoto() {
-      console.log(this.toShow, this.red, this.green, this.blue);
+    async ChangePhoto() {
+      let obj = {};
+      console.log(this.r);
+      switch (this.toShow) {
+        case "tint":
+          obj = {
+            type: this.toShow,
+            r: this.red,
+            g: this.green,
+            b: this.blue,
+          };
+          break;
+        case "crop":
+          obj = {
+            type: this.toShow,
+            w: this.w,
+            h: this.h,
+            t: this.t,
+            l: this.l,
+          };
+          break;
+        case "resize":
+          obj = {
+            type: this.toShow,
+            w: this.w,
+            h: this.h,
+          };
+          break;
+        case "rotate":
+          obj = {
+            type: this.toShow,
+            angle: this.angle,
+          };
+          break;
+        case "reformat":
+          obj = {
+            type: this.toShow,
+            format: this.format,
+          };
+          break;
+        default:
+          obj = {
+            type: this.toShow,
+          };
+          break;
+      }
+      console.log(obj);
+      await this.$store.dispatch("FILTER_PHOTO", obj);
     },
   },
 };

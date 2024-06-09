@@ -1,5 +1,6 @@
 import {
   fetchUserData,
+  filterPhoto,
   getPhotos,
   getUserData,
   getUserPhotos,
@@ -99,6 +100,14 @@ const profile = {
         if (data) {
           commit("SET_USER_PHOTOS", data);
         }
+      } catch (err) {
+        return false;
+      }
+    },
+    async FILTER_PHOTO({ commit }, { type, obj }) {
+      try {
+        const data = await filterPhoto(type, obj);
+        console.log(data);
       } catch (err) {
         return false;
       }

@@ -103,6 +103,11 @@ const getUserPhotos = async (mail) => {
   );
 };
 
+const filterPhoto = async (filterType, params) => {
+  let obj = { filterType, ...params };
+  patch("http://localhost:3000/api/filters", obj);
+};
+
 export {
   postLoginData,
   postRegisterData,
@@ -116,4 +121,5 @@ export {
   getAllPhotos,
   getUserData,
   getUserPhotos,
+  filterPhoto,
 };

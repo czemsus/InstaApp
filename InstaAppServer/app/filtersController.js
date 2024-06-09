@@ -32,75 +32,60 @@ export default class FilterController {
   }
 
   async rotateImg(filePath, angle) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_rotated.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath).rotate(angle).toFile(outputPath);
+    await this.processImage(filePath, (image) => image.rotate(angle));
   }
 
   async resizeImg(filePath, w, h) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_resized.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath)
-      .resize({
+    await this.processImage(filePath, (image) =>
+      image.resize({
         width: w,
         height: h,
       })
-      .toFile(outputPath);
+    );
   }
 
   async reformatImg(filePath, format) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_reformated.${format}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath).toFormat(format).toFile(outputPath);
+    await this.processImage(filePath, (image) => image.toFormat(format));
   }
 
   async cropImg(filePath, w, h, l, t) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_cropped.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath)
-      .extract({ width: w, height: h, left: l, top: t })
-      .toFile(outputPath);
+    await this.processImage(filePath, (image) =>
+      image.extract({ width: w, height: h, left: l, top: t })
+    );
   }
 
   async grayscaleImg(filePath) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_grayscaled.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath).grayscale().toFile(outputPath);
+    await this.processImage(filePath, (image) => image.grayscale());
   }
 
   async flipImg(filePath) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_flipped.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath).flip().toFile(outputPath);
+    await this.processImage(filePath, (image) => image.flip());
   }
 
   async flopImg(filePath) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_flopped.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath).flop().toFile(outputPath);
+    await this.processImage(filePath, (image) => image.flop());
   }
 
   async negateImg(filePath) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_negated.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath).negate().toFile(outputPath);
+    await this.processImage(filePath, (image) => image.negate());
   }
 
   async tintImg(filePath, red, green, blue) {
-    let obj = this.getFilename(filePath);
-    const outputFilename = `${obj.name}_tinted.${obj.type}`;
-    const outputPath = path.join(__dirname, "uploads", outputFilename);
-    await sharp(filePath)
-      .tint({ r: red, g: green, b: blue })
-      .toFile(outputPath);
+    await this.processImage(filePath, (image) =>
+      image.tint({ r: red, g: green, b: blue })
+    );
+  }
+
+  async processImage(filePath, transformFunction) {
+    try {
+      const imageBuffer = await fs.promises.readFile(filePath);
+      const processedImageBuffer = await transformFunction(
+        sharp(imageBuffer)
+      ).toBuffer();
+      await fs.promises.writeFile(filePath, processedImageBuffer);
+    } catch (error) {
+      throw new Error(`Failed to process image: ${error.message}`);
+    }
   }
 
   getFilename(filePath) {
