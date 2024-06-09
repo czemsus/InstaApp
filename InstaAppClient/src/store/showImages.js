@@ -23,7 +23,6 @@ const showImages = {
     async FETCH_PHOTOS({ commit }) {
       try {
         const data = await getAllPhotos();
-        console.log(data.data);
         commit("SET_LIST", data.data);
       } catch (err) {
         return false;

@@ -1,4 +1,4 @@
-import { sendImage, editPhoto } from "@/api/api";
+import { sendImage, editPhoto, getMeta } from "@/api/api";
 import router from "../router/index";
 
 const files = {
@@ -20,6 +20,14 @@ const files = {
       try {
         const data = await sendImage(formdata, token);
         router.push("/profile");
+      } catch (err) {
+        return false;
+      }
+    },
+    async GET_META({ commit }, id) {
+      try {
+        const data = await getMeta(id);
+        return data;
       } catch (err) {
         return false;
       }

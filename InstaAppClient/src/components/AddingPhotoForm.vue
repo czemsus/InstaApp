@@ -230,7 +230,7 @@ span {
   width: 830px;
   height: 60px;
   z-index: 40;
-  top: 142px;
+  top: 152px;
 }
 
 button {

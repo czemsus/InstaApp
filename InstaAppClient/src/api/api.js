@@ -22,7 +22,6 @@ const get = async (url, token) => {
         Authorization: "Bearer " + token,
       },
     });
-    console.log(response);
     return response.data;
   } catch (err) {
     console.log(err);
@@ -108,6 +107,11 @@ const filterPhoto = async (filterType, id, params) => {
   patch("http://localhost:3000/api/filters", obj);
 };
 
+const getMeta = async (id) => {
+  console.log(`http://localhost:3000/api/filters/metadata/${id}`);
+  return get(`http://localhost:3000/api/filters/metadata/${id}`);
+};
+
 export {
   postLoginData,
   postRegisterData,
@@ -122,4 +126,5 @@ export {
   getUserData,
   getUserPhotos,
   filterPhoto,
+  getMeta,
 };

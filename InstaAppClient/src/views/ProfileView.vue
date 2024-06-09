@@ -4,7 +4,7 @@
       <Navbar />
       <div class="profile-container">
         <div class="user-data">
-          {{ clicked}}
+          {{ clicked }}
 
           <ProfileData />
         </div>
@@ -15,12 +15,15 @@
             :id="photo.id"
             @click="setClicked(photo.id)"
           />
-          <PhotoDetails 
-          v-for="photo in photos"
-          
-          v-show="clicked == photo.id" :id="photo.id" :desc="photo.desc" :tagi="photo.tags" @close="closePhoto()"/>
-          <div v-for="photo in photos">
-          {{ photo }}</div>
+          <PhotoDetails
+            v-for="photo in photos"
+            v-show="clicked == photo.id"
+            :id="photo.id"
+            :desc="photo.desc"
+            :tagi="photo.tags"
+            @close="closePhoto()"
+          />
+          <div v-for="photo in photos"></div>
         </div>
       </div>
     </div>
@@ -38,9 +41,10 @@ export default {
     return {
       user: this.$store.getters.GET_USER_DATA,
       photos: this.$store.getters.GET_USER_PHOTOS,
-      clicked: null
+      clicked: null,
     };
-  }, watch: {
+  },
+  watch: {
     "$store.getters.GET_USER_DATA": {
       handler(newValue) {
         this.user = newValue;
@@ -61,16 +65,16 @@ export default {
     Navbar,
     ProfileData,
     PhotoComponent,
-    PhotoDetails
+    PhotoDetails,
   },
-  methods:{
-    setClicked(id){
-      this.clicked = id
+  methods: {
+    setClicked(id) {
+      this.clicked = id;
     },
-    closePhoto(){
-      this.clicked = null
-    }
-  }
+    closePhoto() {
+      this.clicked = null;
+    },
+  },
 };
 </script>
 

@@ -36,7 +36,22 @@
           v-model="blue"
         />
       </div>
-      <div class="crop"></div>
+      <div class="crop" v-if="toShow == 'crop'">
+        <label for="w">Szerokość: {{ w }}px</label>
+        <input type="range" :max="getW" name="w" v-model="w" />
+        <label for="w">Wysokość: {{ h }}px</label>
+        <input type="range" :max="getH" name="h" v-model="h" />
+        <label for="w">od lewej: {{ l }}px</label>
+        <input type="range" :max="getL" name="l" v-model="l" />
+        <label for="w">od góry: {{ t }}px</label>
+        <input type="range" :max="getT" name="t" v-model="t" />
+      </div>
+      <div class="resize" v-if="toShow == 'resize'">
+        <label for="w">Szerokość: {{ w }}px</label>
+        <input type="range" :max="maxWidth" name="w" v-model="w" min="1" />
+        <label for="w">Wysokość: {{ h }}px</label>
+        <input type="range" :max="maxHeigth" name="h" v-model="h" min="1" />
+      </div>
       <div class="rotate" v-if="toShow == 'rotate'">
         <label for="blue">Angle: {{ angle }}</label>
 
@@ -83,12 +98,13 @@ export default {
       h: 0,
       t: 0,
       l: 0,
+      maxWidth: 0,
+      maxHeigth: 0,
     };
   },
   methods: {
     async ChangePhoto() {
       let obj = {};
-      console.log(this.r);
       switch (this.toShow) {
         case "tint":
           obj = {
@@ -125,13 +141,31 @@ export default {
           obj = {};
           break;
       }
-      console.log(obj);
       await this.$store.dispatch("FILTER_PHOTO", {
         type: this.toShow,
         id: this.id,
         obj,
       });
     },
+  },
+  computed: {
+    getW() {
+      return this.maxWidth - this.l;
+    },
+    getH() {
+      return this.maxHeigth - this.t;
+    },
+    getL() {
+      return this.maxWidth - this.w;
+    },
+    getT() {
+      return this.maxHeigth - this.h;
+    },
+  },
+  async created() {
+    let data = await this.$store.dispatch("GET_META", this.id);
+    this.maxWidth = data.meta.width;
+    this.maxHeigth = data.meta.height;
   },
   props: ["id"],
 };

@@ -76,7 +76,6 @@ export default class FilterController {
   }
 
   async tintImg(filePath, red, green, blue) {
-    console.log(filePath, red, green, blue);
     await this.processImage(filePath, (image) =>
       image.tint({ r: parseInt(red), g: parseInt(green), b: parseInt(blue) })
     );

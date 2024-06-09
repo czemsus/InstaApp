@@ -63,10 +63,7 @@ export default {
       immediate: true,
     },
     photos: {
-      handler(newValue) {
-        // The photos getter should update this.photos reactively
-        console.log("Photos updated:", newValue);
-      },
+      handler(newValue) {},
       immediate: true,
     },
   },

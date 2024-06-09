@@ -83,7 +83,6 @@ const profile = {
     async GET_SOMEONES_DATA({ commit }, mail) {
       try {
         const data = await getUserData(mail);
-        console.log(data);
         if (data.user) {
           commit("SET_USER_DATA", data);
         } else {
@@ -96,7 +95,6 @@ const profile = {
     async GET_SOMEONES_PHOTOS({ commit }, mail) {
       try {
         const data = await getUserPhotos(mail);
-        console.log(data);
         if (data) {
           commit("SET_USER_PHOTOS", data);
         }
@@ -107,7 +105,6 @@ const profile = {
     async FILTER_PHOTO({ commit }, { type, id, obj }) {
       try {
         const data = await filterPhoto(type, id, obj);
-        console.log(data);
       } catch (err) {
         console.error("Error:", err);
         return false;

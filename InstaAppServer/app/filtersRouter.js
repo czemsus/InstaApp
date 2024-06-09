@@ -48,16 +48,13 @@ const filtersRouter = async (req, res) => {
         let data = await getRequestData(req);
         data = JSON.parse(data);
         let img = photos.filter((photo) => photo.id == data.id);
-        console.log(data);
         switch (data.filterType) {
           case "rotate":
             data.angle ? data.angle == data.angle : (data.angle = 0);
             filtersController.rotateImg(img[0].url, data.angle);
             break;
           case "resize":
-            data.w ? data.w == data.w : (data.w = 200);
-            data.h ? data.h == data.h : (data.h = 0);
-            filtersController.resizeImg(img[0].url, data.w, data.h);
+            filtersController.resizeImg(img[0].url, data.width, data.height);
             break;
           case "reformat":
             data.format ? data.format == data.format : (data.format = "png");

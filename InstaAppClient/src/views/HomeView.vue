@@ -33,7 +33,6 @@ export default {
   async created() {
     await this.$store.dispatch("FETCH_PHOTOS");
     this.photos = this.getPhotos();
-    console.log(this.photos);
   },
 };
 </script>

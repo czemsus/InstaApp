@@ -68,7 +68,6 @@ const profileRouter = async (req, res) => {
           /\/api\/profile\/getprofilepicture\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
         );
         let email = emailMatch[1];
-        console.log(email);
         let imagePath = path.join(__dirname, "uploads", email, "profile.png");
         fs.readFile(imagePath, (err, data) => {
           if (err) {

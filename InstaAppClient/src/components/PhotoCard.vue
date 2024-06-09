@@ -41,7 +41,6 @@ export default {
             responseType: "blob",
           }
         );
-        console.log(response.data);
         let reader = new FileReader();
         reader.readAsDataURL(response.data);
         reader.onloadend = () => {
@@ -68,6 +67,7 @@ export default {
   margin: 10px;
   border-radius: 5px;
   max-width: 420px;
+  overflow-wrap: break-word;
 }
 
 img {
@@ -87,6 +87,7 @@ img {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
+  overflow-wrap: break-word;
 }
 
 .photo-tag {
@@ -98,5 +99,9 @@ img {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.photo-desc {
+  overflow-wrap: break-word;
 }
 </style>
