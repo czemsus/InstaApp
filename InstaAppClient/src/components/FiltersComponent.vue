@@ -1,11 +1,60 @@
 <template>
   <div class="main">
     <label for="filter">Wybierz filtr</label>
-    <select name="filter" id="filter">
+    <select name="filter" id="filter" v-model="toShow">
       <option v-for="filter in filters" :key="filter" :value="filter">
         {{ filter }}
       </option>
     </select>
+    <div class="filters-forms">
+      <div class="tint" v-if="toShow == 'tint'">
+        <label for="red">Red: {{ red }}</label>
+        <input
+          type="range"
+          max="256"
+          step="1"
+          min="0"
+          name="red"
+          v-model="red"
+        />
+        <label for="green">Green: {{ green }}</label>
+        <input
+          type="range"
+          max="256"
+          step="1"
+          min="0"
+          name="green"
+          v-model="green"
+        />
+        <label for="blue">Blue: {{ blue }}</label>
+        <input
+          type="range"
+          max="256"
+          step="1"
+          min="0"
+          name="blue"
+          v-model="blue"
+        />
+      </div>
+      <div class="crop"></div>
+      <div class="rotate" v-if="toShow == 'rotate'">
+        <label for="blue">Angle: {{ angle }}</label>
+
+        <input
+          type="range"
+          max="360"
+          min="0"
+          step="1"
+          name="angle"
+          v-model="angle"
+        />
+      </div>
+      <div class="reformat" v-if="toShow == 'reformat'">
+        <label for="reformat">Format</label>
+        <input type="text" name="reformat" v-model="format" />
+      </div>
+      <button @click="ChangePhoto()">Apply filter</button>
+    </div>
   </div>
 </template>
 
@@ -24,9 +73,45 @@ export default {
         "flop",
         "negate",
       ],
+      toShow: "",
+      red: 0,
+      green: 0,
+      blue: 0,
+      angle: 0,
+      format: "",
     };
+  },
+  methods: {
+    ChangePhoto() {
+      console.log(this.toShow, this.red, this.green, this.blue);
+    },
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+select {
+  padding: 10px 5px;
+  border: 1px solid lightgray;
+  border-radius: 10px;
+  text-align: center;
+}
+.reformat input[type="text"] {
+  background-color: none;
+}
+
+button {
+  padding: 10px 15px;
+  border-radius: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  width: 100%;
+}
+</style>
