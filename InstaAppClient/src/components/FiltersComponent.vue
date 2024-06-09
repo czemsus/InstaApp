@@ -11,7 +11,7 @@
         <label for="red">Red: {{ red }}</label>
         <input
           type="range"
-          max="256"
+          max="255"
           step="1"
           min="0"
           name="red"
@@ -20,7 +20,7 @@
         <label for="green">Green: {{ green }}</label>
         <input
           type="range"
-          max="256"
+          max="255"
           step="1"
           min="0"
           name="green"
@@ -29,7 +29,7 @@
         <label for="blue">Blue: {{ blue }}</label>
         <input
           type="range"
-          max="256"
+          max="255"
           step="1"
           min="0"
           name="blue"
@@ -92,50 +92,48 @@ export default {
       switch (this.toShow) {
         case "tint":
           obj = {
-            type: this.toShow,
-            r: this.red,
-            g: this.green,
-            b: this.blue,
+            red: this.red,
+            green: this.green,
+            blue: this.blue,
           };
           break;
         case "crop":
           obj = {
-            type: this.toShow,
-            w: this.w,
-            h: this.h,
-            t: this.t,
-            l: this.l,
+            width: this.w,
+            height: this.h,
+            top: this.t,
+            left: this.l,
           };
           break;
         case "resize":
           obj = {
-            type: this.toShow,
-            w: this.w,
-            h: this.h,
+            width: this.w,
+            height: this.h,
           };
           break;
         case "rotate":
           obj = {
-            type: this.toShow,
             angle: this.angle,
           };
           break;
         case "reformat":
           obj = {
-            type: this.toShow,
             format: this.format,
           };
           break;
         default:
-          obj = {
-            type: this.toShow,
-          };
+          obj = {};
           break;
       }
       console.log(obj);
-      await this.$store.dispatch("FILTER_PHOTO", obj);
+      await this.$store.dispatch("FILTER_PHOTO", {
+        type: this.toShow,
+        id: this.id,
+        obj,
+      });
     },
   },
+  props: ["id"],
 };
 </script>
 

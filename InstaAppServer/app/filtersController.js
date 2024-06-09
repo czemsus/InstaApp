@@ -32,14 +32,14 @@ export default class FilterController {
   }
 
   async rotateImg(filePath, angle) {
-    await this.processImage(filePath, (image) => image.rotate(angle));
+    await this.processImage(filePath, (image) => image.rotate(parseInt(angle)));
   }
 
   async resizeImg(filePath, w, h) {
     await this.processImage(filePath, (image) =>
       image.resize({
-        width: w,
-        height: h,
+        width: parseInt(w),
+        height: parseInt(h),
       })
     );
   }
@@ -50,7 +50,12 @@ export default class FilterController {
 
   async cropImg(filePath, w, h, l, t) {
     await this.processImage(filePath, (image) =>
-      image.extract({ width: w, height: h, left: l, top: t })
+      image.extract({
+        width: parseInt(w),
+        height: parseInt(h),
+        left: parseInt(l),
+        top: parseInt(t),
+      })
     );
   }
 
@@ -71,8 +76,9 @@ export default class FilterController {
   }
 
   async tintImg(filePath, red, green, blue) {
+    console.log(filePath, red, green, blue);
     await this.processImage(filePath, (image) =>
-      image.tint({ r: red, g: green, b: blue })
+      image.tint({ r: parseInt(red), g: parseInt(green), b: parseInt(blue) })
     );
   }
 

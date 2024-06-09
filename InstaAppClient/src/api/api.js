@@ -103,8 +103,8 @@ const getUserPhotos = async (mail) => {
   );
 };
 
-const filterPhoto = async (filterType, params) => {
-  let obj = { filterType, ...params };
+const filterPhoto = async (filterType, id, params) => {
+  let obj = { filterType, id, ...params };
   patch("http://localhost:3000/api/filters", obj);
 };
 

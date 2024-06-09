@@ -104,11 +104,12 @@ const profile = {
         return false;
       }
     },
-    async FILTER_PHOTO({ commit }, { type, obj }) {
+    async FILTER_PHOTO({ commit }, { type, id, obj }) {
       try {
-        const data = await filterPhoto(type, obj);
+        const data = await filterPhoto(type, id, obj);
         console.log(data);
       } catch (err) {
+        console.error("Error:", err);
         return false;
       }
     },

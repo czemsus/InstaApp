@@ -44,7 +44,7 @@
             </button>
           </div>
           <div class="filters">
-            <FiltersComponent />
+            <FiltersComponent :id="this.id" />
           </div>
         </div>
       </div>

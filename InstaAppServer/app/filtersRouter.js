@@ -48,8 +48,8 @@ const filtersRouter = async (req, res) => {
         let data = await getRequestData(req);
         data = JSON.parse(data);
         let img = photos.filter((photo) => photo.id == data.id);
-
-        switch (data.filter) {
+        console.log(data);
+        switch (data.filterType) {
           case "rotate":
             data.angle ? data.angle == data.angle : (data.angle = 0);
             filtersController.rotateImg(img[0].url, data.angle);
@@ -89,10 +89,12 @@ const filtersRouter = async (req, res) => {
             filtersController.negateImg(img[0].url);
             break;
           case "tint":
-            data.r ? data.r == data.r : (data.r = 0);
-            data.g ? data.g == data.g : (data.g = 0);
-            data.b ? data.b == data.b : (data.b = 0);
-            filtersController.tintImg(img[0].url, data.r, data.g, data.b);
+            filtersController.tintImg(
+              img[0].url,
+              data.red,
+              data.green,
+              data.blue
+            );
 
             break;
         }
