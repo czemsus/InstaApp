@@ -9,7 +9,7 @@
       <form name="login-form" @submit.prevent="register">
         <a href=""
           ><img
-            src="@/assets/Instagram_text.png"
+            src="@/assets/instagram_text.png"
             alt=""
             style="padding-left: 18px"
         /></a>
