@@ -5,12 +5,15 @@ import filtersRouter from "./app/filtersRouter.js";
 import usersRouter from "./app/usersRouter.js";
 import profileRouter from "./app/profileRouter.js";
 import "dotenv/config";
+
+const PORT = process.env.PORT || 3000;
+
 createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Request-Method", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "OPTIONS, GET, POST, PATCH, PUT, DELETE"
+    "OPTIONS, GET, POST, PATCH, PUT, DELETE",
   );
   res.setHeader("Access-Control-Allow-Headers", "*, Authorization");
 
@@ -35,4 +38,4 @@ createServer(async (req, res) => {
   } else if (req.url.search("/api/logout") != -1) {
     await profileRouter(req, res);
   }
-}).listen(process.env.APP_PORT, () => console.log("listen on 3000"));
+}).listen(PORT, () => console.log(`start na porcie ${PORT}`));
