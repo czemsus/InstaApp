@@ -21,16 +21,16 @@ const usersRouter = async (req, res) => {
           JSON.stringify({
             status: "200",
             users: users,
-          })
+          }),
         );
         break;
       } else if (
         req.url.match(
-          /\/api\/user\/confirm\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+          /\/api\/user\/confirm\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
         )
       ) {
         const jwt = req.url.match(
-          /\/api\/user\/confirm\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+          /\/api\/user\/confirm\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
         )[1];
 
         if (verifyToken(jwt) == "expired") {
@@ -40,7 +40,7 @@ const usersRouter = async (req, res) => {
           res.end(
             JSON.stringify({
               message: "Link wygasł",
-            })
+            }),
           );
         } else {
           res.writeHead(200, {
@@ -49,18 +49,18 @@ const usersRouter = async (req, res) => {
           res.end(
             JSON.stringify({
               message: "Konto aktywowane",
-            })
+            }),
           );
           let data = verifyToken(jwt);
           usersController.verifyAccount(data.email);
         }
       } else if (
         req.url.match(
-          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
         )
       ) {
         const jwt = req.url.match(
-          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
+          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
         )[1];
         let email = verifyToken(jwt).email;
         let valid;
@@ -76,11 +76,11 @@ const usersRouter = async (req, res) => {
           JSON.stringify({
             valid: valid,
             email: email,
-          })
+          }),
         );
       } else if (req.url.match(/\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/)) {
         let email = req.url.match(
-          /\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
+          /\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/,
         )[1];
         let user = users.find((user) => user.mail == email);
         if (user) {
@@ -90,7 +90,7 @@ const usersRouter = async (req, res) => {
           res.end(
             JSON.stringify({
               user,
-            })
+            }),
           );
         } else {
           res.writeHead(200, {
@@ -99,7 +99,7 @@ const usersRouter = async (req, res) => {
           res.end(
             JSON.stringify({
               user: false,
-            })
+            }),
           );
         }
       }
@@ -130,8 +130,8 @@ const usersRouter = async (req, res) => {
           });
           res.end(
             JSON.stringify({
-              content: `Potwiedź konto : http://localhost:3000/api/user/confirm/${token}`,
-            })
+              content: `Potwiedź konto : https://instaappfinal.onrender.com/api/user/confirm/${token}`,
+            }),
           );
         } else {
           let msg = "juz jest taki mail";
@@ -141,7 +141,7 @@ const usersRouter = async (req, res) => {
           res.end(
             JSON.stringify({
               message: msg,
-            })
+            }),
           );
         }
 
@@ -158,7 +158,7 @@ const usersRouter = async (req, res) => {
             token: loginInfo.token,
             status: loginInfo.status,
             msg: loginInfo.msg,
-          })
+          }),
         );
         return;
       }

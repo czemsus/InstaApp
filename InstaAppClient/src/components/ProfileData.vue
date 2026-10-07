@@ -40,7 +40,7 @@ export default {
     async fetchProfileImage() {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/profile/pfp",
+          "https://instaappfinal.onrender.com/api/profile/pfp",
           {
             headers: {
               Authorization: `Bearer ${this.token}`,

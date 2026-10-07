@@ -31,7 +31,7 @@ export const sendMail = (email, token) => {
                           <td align="center" style="padding: 40px 30px 40px 30px; color: #333333;">
                               <p style="font-size: 18px; margin: 0;">Dziękujemy za rejestrację w nazym serwisie!</p>
                               <p style="font-size: 18px; margin: 20px 0;">Kliknij w poniższy przycisk, aby zweryfikować swoje konto</p>
-                              <a href="http://localhost:3000/api/user/confirm/${token}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 18px; color: #ffffff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Zweryfikuj konto</a>
+                              <a href="https://instaappfinal.onrender.com/api/user/confirm/${token}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 18px; color: #ffffff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Zweryfikuj konto</a>
                           </td>
                       </tr>
                       <tr>

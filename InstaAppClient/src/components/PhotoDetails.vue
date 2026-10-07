@@ -103,7 +103,7 @@ export default {
     },
   },
   created() {
-    this.src = `http://localhost:3000/api/getimage/` + this.id;
+    this.src = `https://instaappfinal.onrender.com/api/getimage/` + this.id;
     this.tagsList = this.tagi;
     this.description = this.desc;
   },

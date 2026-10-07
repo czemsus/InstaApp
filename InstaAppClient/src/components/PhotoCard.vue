@@ -7,7 +7,7 @@
     </div>
     <div class="image">
       <img
-        :src="`http://localhost:3000/api/getimage/${id}`"
+        :src="`https://instaappfinal.onrender.com/api/getimage/${id}`"
         alt=""
         width="400px"
       />
@@ -36,7 +36,7 @@ export default {
     async fetchProfileImage(user) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/profile/getprofilepicture/${user}`,
+          `https://instaappfinal.onrender.com/api/profile/getprofilepicture/${user}`,
           {
             responseType: "blob",
           }

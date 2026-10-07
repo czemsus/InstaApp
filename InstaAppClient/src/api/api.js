@@ -45,36 +45,36 @@ const patch = async (url, object, token) => {
 };
 
 const postLoginData = (object) =>
-  post("http://localhost:3000/api/user/login", object);
+  post("https://instaappfinal.onrender.com/api/user/login", object);
 
 const postRegisterData = (object) =>
-  post("http://localhost:3000/api/user/register", object);
+  post("https://instaappfinal.onrender.com/api/user/register", object);
 
 const getTokenValid = (token) =>
-  get(`http://localhost:3000/api/user/checktoken/${token}`);
+  get(`https://instaappfinal.onrender.com/api/user/checktoken/${token}`);
 
 const sendImage = (data, token) => {
   let token1 = localStorage.getItem("userToken");
-  let path = `http://localhost:3000/api/photos/${token1}`;
+  let path = `https://instaappfinal.onrender.com/api/photos/${token1}`;
   post(path, data, token1);
 };
 
 const fetchUserData = async (token) => {
-  return await get(`http://localhost:3000/api/profile`, token);
+  return await get(`https://instaappfinal.onrender.com/api/profile`, token);
 };
 
 const patchUserData = async (obj, token) => {
-  return patch("http://localhost:3000/api/profile", obj, token);
+  return patch("https://instaappfinal.onrender.com/api/profile", obj, token);
 };
 
 const getPhotos = async (token) => {
-  return await get(`http://localhost:3000/api/photos`, token);
+  return await get(`https://instaappfinal.onrender.com/api/photos`, token);
 };
 
 const editPhoto = async (object) => {
   let token1 = localStorage.getItem("userToken");
   return await patch(
-    `http://localhost:3000/api/tags/edit/${object.id}`,
+    `https://instaappfinal.onrender.com/api/tags/edit/${object.id}`,
     object,
     token1
   );
@@ -82,34 +82,34 @@ const editPhoto = async (object) => {
 
 const sendProfilePicture = async (data) => {
   let token = localStorage.getItem("userToken");
-  post("http://localhost:3000/api/profile/upload", data, token);
+  post("https://instaappfinal.onrender.com/api/profile/upload", data, token);
 };
 
 const getAllPhotos = async () => {
-  return await get("http://localhost:3000/api/photos");
+  return await get("https://instaappfinal.onrender.com/api/photos");
 };
 
 const getUserData = async (mail) => {
   let token = localStorage.getItem("userToken");
-  return await get(`http://localhost:3000/api/user/${mail}`, token);
+  return await get(`https://instaappfinal.onrender.com/api/user/${mail}`, token);
 };
 
 const getUserPhotos = async (mail) => {
   let token = localStorage.getItem("userToken");
   return await get(
-    `http://localhost:3000/api/profile/getphotos/${mail}`,
+    `https://instaappfinal.onrender.com/api/profile/getphotos/${mail}`,
     token
   );
 };
 
 const filterPhoto = async (filterType, id, params) => {
   let obj = { filterType, id, ...params };
-  patch("http://localhost:3000/api/filters", obj);
+  patch("https://instaappfinal.onrender.com/api/filters", obj);
 };
 
 const getMeta = async (id) => {
-  console.log(`http://localhost:3000/api/filters/metadata/${id}`);
-  return get(`http://localhost:3000/api/filters/metadata/${id}`);
+  console.log(`https://instaappfinal.onrender.com/api/filters/metadata/${id}`);
+  return get(`https://instaappfinal.onrender.com/api/filters/metadata/${id}`);
 };
 
 export {

@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <img :src="`http://localhost:3000/api/getimage/${id}`" alt="zdjęcie" />
+    <img :src="`https://instaappfinal.onrender.com/api/getimage/${id}`" alt="zdjęcie" />
   </div>
 </template>
 
