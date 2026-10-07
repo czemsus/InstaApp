@@ -1,7 +1,7 @@
 <template>
   <SendProfilePicture v-show="showModal" @close="changeModal()" />
   <div class="form">
-    <img src="../assets/instagram_text.png" alt="" />
+    <img src="@/assets/instagram_text.png" alt="" />
 
     <div class="image">
       <img :src="profileImage" alt="" width="50px" />
@@ -73,7 +73,7 @@ export default {
               Authorization: `Bearer ${this.token}`,
             },
             responseType: "blob",
-          }
+          },
         );
         let reader = new FileReader();
         reader.readAsDataURL(response.data);

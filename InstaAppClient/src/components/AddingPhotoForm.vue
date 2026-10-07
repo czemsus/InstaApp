@@ -21,7 +21,7 @@
       >
         <template #content>
           <div class="drop-area">
-            <img src="../assets/files.png" width="50px" alt="" />
+            <img src="@/assets/files.png" width="50px" alt="" />
             <p>Drag and drop files here to upload.</p>
           </div>
         </template>
@@ -163,7 +163,7 @@ export default {
     },
     deleteItem(index) {
       this.tagsList = this.tagsList.filter(
-        (tag) => tag != this.tagsList[index]
+        (tag) => tag != this.tagsList[index],
       );
     },
   },

@@ -9,7 +9,7 @@
       <form name="login-form" @submit.prevent="register">
         <a href=""
           ><img
-            src="../assets/Instagram_text.png"
+            src="@/assets/Instagram_text.png"
             alt=""
             style="padding-left: 18px"
         /></a>
@@ -20,7 +20,7 @@
         </div>
         <a href="">
           <div class="fb">
-            <img src="../assets/facebook_logo.png" width="20" />
+            <img src="@/assets/facebook_logo.png" width="20" />
             Zarejestruj się przez Facebooka
           </div></a
         >

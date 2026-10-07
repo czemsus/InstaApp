@@ -6,7 +6,7 @@
   />
   <div class="formContainer">
     <form name="login-form" @submit.prevent="logIn">
-      <a href=""><img src="../assets/Instagram_text.png" alt="" /></a>
+      <a href=""><img src="@/assets/Instagram_text.png" alt="" /></a>
       <div>
         <input
           id="username"
@@ -31,7 +31,7 @@
       <a href="">Nie pamiętasz hasła?</a>
       <a href="">
         <div class="fb">
-          <img src="../assets/facebook_logo.png" width="20" />
+          <img src="@/assets/facebook_logo.png" width="20" />
           Zaloguj się przez Facebooka
         </div></a
       >
