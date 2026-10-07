@@ -1,7 +1,7 @@
 <template>
   <AddingPhotoForm v-if="isVisible" @close="closeForm" />
   <div class="header">
-    <img src="../assets/instagram_text.png" width="160px" />
+    <img src="@/assets/instagram_text.png" width="160px" />
     <div class="menu">
       <RouterLink to="/" exact>
         <font-awesome-icon :icon="['fas', 'home']" /> Strona główna</RouterLink
