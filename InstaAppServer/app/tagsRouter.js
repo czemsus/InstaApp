@@ -4,7 +4,7 @@ import path from "path";
 import { tagsObjects } from "./Model.js";
 import TagsController from "./tagsController.js";
 import getRequestData from "./getRequestData.js";
-import JsonController from "./JsonController.js";
+import JsonController from "./jsonController.js";
 const __dirname = path.resolve();
 const tagsController = new TagsController();
 const jsonController = new JsonController();

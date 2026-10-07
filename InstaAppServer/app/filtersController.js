@@ -1,5 +1,5 @@
 import path from "path";
-import JsonController from "./JsonController.js";
+import JsonController from "./jsonController.js";
 import sharp from "sharp";
 import fs from "fs";
 
