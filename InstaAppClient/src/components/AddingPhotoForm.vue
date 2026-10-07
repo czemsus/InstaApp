@@ -21,7 +21,7 @@
       >
         <template #content>
           <div class="drop-area">
-            <img src="@/assets/files.png" width="50px" alt="" />
+            <img src="@/assets/home.png" width="50px" alt="" />
             <p>Drag and drop files here to upload.</p>
           </div>
         </template>
