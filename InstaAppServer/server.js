@@ -6,9 +6,9 @@ import usersRouter from "./app/usersRouter.js";
 import profileRouter from "./app/profileRouter.js";
 import "dotenv/config";
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-createServer(async (req, res) => {
+const server = createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Request-Method", "*");
   res.setHeader(
@@ -23,19 +23,33 @@ createServer(async (req, res) => {
     return;
   }
 
-  if (req.url.search("/api/photos") != -1) {
-    await imageRouter(req, res);
-  } else if (req.url.search("/api/tags") != -1) {
-    await tagsRouter(req, res);
-  } else if (req.url.search("/api/filters") != -1) {
-    await filtersRouter(req, res);
-  } else if (req.url.search("/api/getimage") != -1) {
-    await filtersRouter(req, res);
-  } else if (req.url.search("/api/user") != -1) {
-    await usersRouter(req, res);
-  } else if (req.url.search("/api/profile") != -1) {
-    await profileRouter(req, res);
-  } else if (req.url.search("/api/logout") != -1) {
-    await profileRouter(req, res);
+  try {
+    const url = req.url;
+
+    if (url.includes("/api/photos")) {
+      await imageRouter(req, res);
+    } else if (url.includes("/api/tags")) {
+      await tagsRouter(req, res);
+    } else if (url.includes("/api/filters") || url.includes("/api/getimage")) {
+      await filtersRouter(req, res);
+    } else if (url.includes("/api/user")) {
+      await usersRouter(req, res);
+    } else if (url.includes("/api/profile") || url.includes("/api/logout")) {
+      await profileRouter(req, res);
+    } else {
+      // Domyślna odpowiedź 404 dla nieznanych ścieżek
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Endpoint not found" }));
+    }
+  } catch (error) {
+    console.error("Server Error:", error);
+    if (!res.headersSent) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Internal Server Error" }));
+    }
   }
-}).listen(PORT, () => console.log(`start na porcie ${PORT}`));
+});
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
