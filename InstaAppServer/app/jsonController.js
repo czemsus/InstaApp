@@ -5,13 +5,14 @@ export default class JsonController {
   static images = photos;
 
   constructor() {}
+
   static add = (album, originalName, url, tags, desc) => {
     let photo = new Photo(album, originalName, url, tags, desc);
     this.images.push(photo);
   };
 
   static deletePhoto(id) {
-    this.images = photos.filter((obj) => obj.id !== id);
+    this.images = photos.filter((obj) => obj.id != id);
   }
 
   static getPhotos() {
@@ -19,12 +20,16 @@ export default class JsonController {
   }
 
   static editPhoto(id, obj) {
-    let photo = this.images.find((photo) => photo.id === id);
+    let photo = this.images.find((photo) => photo.id == id);
+
     if (photo) {
-      photo.tags = obj.tags;
-      photo.desc = obj.desc;
+      if (obj.tags !== undefined) photo.tags = obj.tags;
+      if (obj.desc !== undefined) photo.desc = obj.desc;
+      if (obj.history !== undefined) photo.history = obj.history;
+      return photo;
     } else {
-      throw new Error(`Photo with id ${id} not found`);
+      console.error(`Photo with id ${id} not found in memory`);
+      return null;
     }
   }
 }
