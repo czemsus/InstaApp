@@ -1,25 +1,14 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-export const sendMail = (email, token) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
-  });
+// Klucz API pobierany jest bezpiecznie ze środowiska Rendera
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-  async function main() {
-    const info = await transporter.sendMail({
-      from: '"InstaApp" <mikolajsolarz11@gmail.com>',
+export const sendMail = async (email, token) => {
+  try {
+    const data = await resend.emails.send({
+      from: "InstaApp <onboarding@resend.dev>",
       to: email,
-      subject: "Hello ✔",
-      text: "Hello world?",
+      subject: "Potwierdzenie rejestracji - InstaApp",
       html: `<body style="margin: 0; padding: 0; background-color: #f2f2f2; font-family: 'Montserrat', sans-serif;">
       <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
           <tr>
@@ -32,21 +21,21 @@ export const sendMail = (email, token) => {
                       </tr>
                       <tr>
                           <td align="center" style="padding: 40px 30px 40px 30px; color: #333333;">
-                              <p style="font-size: 18px; margin: 0;">Dziękujemy za rejestrację w nazym serwisie!</p>
+                              <p style="font-size: 18px; margin: 0;">Dziękujemy za rejestrację w naszym serwisie!</p>
                               <p style="font-size: 18px; margin: 20px 0;">Kliknij w poniższy przycisk, aby zweryfikować swoje konto</p>
                               <a href="https://instaappfinal.onrender.com/api/user/confirm/${token}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 18px; color: #ffffff; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Zweryfikuj konto</a>
                           </td>
                       </tr>
                       <tr>
                           <td align="center" style="padding: 20px 30px 40px 30px; color: #333333;">
-                              <p style="font-size: 14px; margin: 0;">Jeżeli nie zakładałeś konta w naszej aplikacji, zignoruj tą wiadomość</p>
+                              <p style="font-size: 14px; margin: 0;">Jeżeli nie zakładałeś konta w naszej aplikacji, zignoruj tę wiadomość</p>
                               <p style="font-size: 14px; margin: 20px 0 0 0;">z poważaniem,</p>
                               <p style="font-size: 14px; margin: 0;">InstaApp</p>
                           </td>
                       </tr>
                       <tr>
                           <td align="center" bgcolor="#f7f7f7" style="padding: 30px 30px 30px 30px; color: #999999; font-size: 12px; border-radius: 0 0 10px 10px;">
-                              <p style="margin: 0;">&copy; 2024 InstaApp. Wszelkie prawa zastrzeżone.</p>
+                              <p style="margin: 0;">&copy; 2026 InstaApp. Wszelkie prawa zastrzeżone.</p>
                               <p style="margin: 0;">Różana 16, Kraków</p>
                           </td>
                       </tr>
@@ -56,7 +45,11 @@ export const sendMail = (email, token) => {
       </table>
   </body>`,
     });
-  }
 
-  main().catch(console.error);
+    console.log("E-mail wysłany pomyślnie:", data);
+    return data;
+  } catch (error) {
+    console.error("Błąd wysyłania e-maila:", error.message);
+    return null;
+  }
 };
