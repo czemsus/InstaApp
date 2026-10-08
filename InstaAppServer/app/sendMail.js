@@ -6,9 +6,12 @@ export const sendMail = (email, token) => {
     port: 465,
     secure: true,
     auth: {
-      user: "mikolajsolarz11@gmail.com ",
-      pass: "hmkz ciug usns cqtm",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
   });
 
   async function main() {
