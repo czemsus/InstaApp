@@ -3,7 +3,6 @@ import getRequestData from "./getRequestData.js";
 import { usersController } from "./usersController.js";
 import { verifyToken } from "./jwt.js";
 import { photos, users } from "./Model.js";
-import { decode } from "punycode";
 import formidable from "formidable";
 import fs from "fs";
 
@@ -41,7 +40,7 @@ const profileRouter = async (req, res) => {
           );
         }
       } else if (req.url == "/api/logout") {
-      } else if (req.url == "/api/profile/pfp") {
+      } else if (req.url.split("?")[0] == "/api/profile/pfp") {
         let token = usersController.getTokenFromUrl(req, res);
         let data = verifyToken(token);
         let imagePath = path.join(
@@ -101,36 +100,60 @@ const profileRouter = async (req, res) => {
         let token = usersController.getTokenFromUrl(req, res);
         let data = verifyToken(token);
         let email = data.email;
-        fs.unlink(
-          path.join(__dirname, "uploads", email, "profile.png"),
-          (err) => {
+        const form = new formidable.IncomingForm();
+        form.parse(req, async (err, fields, files) => {
+          try {
             if (err) {
-              reject(err);
-            } else {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "Invalid upload form" }));
+              return;
+            }
+
+            const uploadedFile = Array.isArray(files.file)
+              ? files.file[0]
+              : files.file;
+            if (!uploadedFile || !uploadedFile.type?.startsWith("image/")) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "An image file is required" }));
+              return;
+            }
+
+            const profileDirectory = path.join(
+              __dirname,
+              "uploads",
+              email,
+            );
+            await fs.promises.mkdir(profileDirectory, { recursive: true });
+            const profilePath = path.join(profileDirectory, "profile.png");
+            const temporaryPath = path.join(
+              profileDirectory,
+              `profile-${Date.now()}.tmp`,
+            );
+
+            try {
+              await fs.promises.copyFile(uploadedFile.path, temporaryPath);
+              await fs.promises.rename(temporaryPath, profilePath);
+            } catch (error) {
+              await fs.promises.rm(temporaryPath, { force: true });
+              throw error;
+            }
+
+            res.writeHead(200, {
+              "Content-Type": "application/json;charset=utf-8",
+            });
+            res.end(
+              JSON.stringify({
+                status: "success",
+                message: "Zdjęcie profilowe zostało zaktualizowane.",
+              }),
+            );
+          } catch (error) {
+            console.error("Profile picture upload failed:", error);
+            if (!res.headersSent) {
+              res.writeHead(500, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "Profile picture upload failed" }));
             }
           }
-        );
-        const form = new formidable.IncomingForm();
-        form.parse(req, function (err, fields, files) {
-          let oldPath = files.file.path;
-          let newPath = path.join(__dirname, "uploads", email, "profile.png");
-          let rawData = fs.readFileSync(files.file.path);
-
-          fs.copyFile(oldPath, newPath, function (err) {
-            if (err) {
-              console.log(err);
-            } else {
-              res.writeHead(200, {
-                "Content-Type": "text/plain;charset=utf-8",
-              });
-              res.end(
-                JSON.stringify({
-                  status: "200",
-                  message: "Plik przesłany pomyślnie",
-                })
-              );
-            }
-          });
         });
       }
       break;

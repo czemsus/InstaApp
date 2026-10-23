@@ -85,7 +85,7 @@ const editPhoto = async (object) => {
 
 const sendProfilePicture = async (data) => {
   let token = localStorage.getItem("userToken");
-  post(`${API_BASE_URL}/api/profile/upload`, data, token);
+  return await post(`${API_BASE_URL}/api/profile/upload`, data, token);
 };
 
 const getAllPhotos = async () => {

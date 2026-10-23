@@ -88,8 +88,9 @@ const profile = {
     async SEND_PROFILE_PICTURE({ commit }, { formdata }) {
       try {
         const data = await sendProfilePicture(formdata);
-        router.push("/edit");
+        return data;
       } catch (err) {
+        console.error("Error uploading profile picture:", err);
         return false;
       }
     },

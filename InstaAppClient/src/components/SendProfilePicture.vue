@@ -1,119 +1,127 @@
 <template>
-  <div class="overlay" @click="closeForm" v-if="a">
-    <div class="next" v-show="selected">
-      <button @click="sendImage">Prześlij</button>
-      <button @click="dontShow" class="anuluj">Anuluj</button>
-    </div>
-
-    <div
-      class="form-container"
-      @click.stop
-      @dragover.prevent
-      @drop.prevent="handleDrop"
-    >
-      <FileUpload
-        name="demo[]"
-        url="/api/photos"
-        :multiple="false"
-        accept="image/*"
-        :max-file-size="1000000"
-        @select="handleSelect"
+  <div class="overlay" @click.self="closeForm">
+    <section class="dialog" aria-labelledby="upload-title">
+      <h2 id="upload-title">Zmień zdjęcie profilowe</h2>
+      <label
+        class="drop-area"
+        @dragover.prevent
+        @drop.prevent="handleDrop"
       >
-        <template #content>
-          <div class="drop-area">
-            <img src="@/assets/home.png" width="50px" alt="" />
-            <p>Drag and drop files here to upload.</p>
-          </div>
-        </template>
-      </FileUpload>
-      <div
-        v-if="thumbnailUrl"
-        class="thumbnail"
-        :style="{ backgroundImage: 'url(' + thumbnailUrl + ')' }"
-      ></div>
-    </div>
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/*"
+          @change="handleSelect"
+        />
+        <img v-if="thumbnailUrl" :src="thumbnailUrl" alt="Podgląd zdjęcia" />
+        <span v-else>Wybierz zdjęcie lub przeciągnij je tutaj</span>
+      </label>
+      <p v-if="file" class="file-name">{{ file.name }}</p>
+      <p v-if="errorMessage" class="error-message" role="alert">
+        {{ errorMessage }}
+      </p>
+      <div class="actions">
+        <button type="button" class="cancel-button" @click="closeForm">
+          Anuluj
+        </button>
+        <button
+          type="button"
+          :disabled="!file || isUploading"
+          @click="sendImage"
+        >
+          {{ isUploading ? "Przesyłanie..." : "Prześlij" }}
+        </button>
+      </div>
+    </section>
   </div>
 </template>
 
 <script>
-import FileUpload from "primevue/fileupload";
-import TagElement from "./TagElement.vue";
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export default {
   data() {
     return {
-      thumbnailUrl: "",
-      selected: false,
       file: null,
-      token: "",
-      a: true,
-      bio: "",
-      description: "",
-      newTag: "",
-      tagsList: [],
-      msg: "",
+      thumbnailUrl: "",
+      errorMessage: "",
+      isUploading: false,
     };
   },
-  created() {
-    this.token = this.getToken();
+  beforeUnmount() {
+    this.clearThumbnail();
   },
   methods: {
-    dontShow() {
-      this.a = false;
-    },
-    closeForm(event) {
-      if (event.target.classList.contains("overlay")) {
+    closeForm() {
+      if (!this.isUploading) {
         this.$emit("close");
       }
     },
-    handleSelect(event) {
-      this.file = event.files[0];
-      if (this.file) {
-        this.generateThumbnail(this.file);
-      } else {
-        console.error("No file selected");
+    clearThumbnail() {
+      if (this.thumbnailUrl) {
+        URL.revokeObjectURL(this.thumbnailUrl);
+        this.thumbnailUrl = "";
       }
     },
-    generateThumbnail(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.thumbnailUrl = e.target.result;
-        this.selected = true;
-      };
-      reader.readAsDataURL(file);
-    },
-    reloadProfile() {
-      this.$store.dispatch("RELOAD_USER_DATA");
-    },
-    async sendImage() {
-      const formdata = new FormData();
-      formdata.append("album", "user_album");
-      formdata.append("file", this.file);
-      formdata.append("description", this.description);
-      formdata.append("tags", JSON.stringify(this.tagsList));
+    selectFile(file) {
+      this.clearThumbnail();
+      this.errorMessage = "";
 
-      await this.$store.dispatch("SEND_PROFILE_PICTURE", {
-        formdata,
-        token: this.token,
-      });
-      this.dontShow();
-      this.reloadProfile();
-      this.$store.dispatch("RELOAD_USER_DATA");
+      if (!file) {
+        this.file = null;
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        this.file = null;
+        this.errorMessage = "Wybierz plik graficzny.";
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        this.file = null;
+        this.errorMessage = "Zdjęcie może mieć maksymalnie 5 MB.";
+        return;
+      }
+
+      this.file = file;
+      this.thumbnailUrl = URL.createObjectURL(file);
+    },
+    handleSelect(event) {
+      this.selectFile(event.target.files[0]);
+      if (!this.file) {
+        event.target.value = "";
+      }
     },
     handleDrop(event) {
-      const files = event.dataTransfer.files;
-      if (files.length > 0) {
-        this.file = files[0];
-        this.handleSelect({ files: [this.file] });
+      this.selectFile(event.dataTransfer.files[0]);
+    },
+    async sendImage() {
+      if (!this.file || this.isUploading) {
+        return;
+      }
+
+      this.isUploading = true;
+      this.errorMessage = "";
+      const formData = new FormData();
+      formData.append("file", this.file);
+
+      try {
+        const result = await this.$store.dispatch("SEND_PROFILE_PICTURE", {
+          formdata: formData,
+        });
+        if (result === false) {
+          this.errorMessage = "Nie udało się przesłać zdjęcia. Spróbuj ponownie.";
+          return;
+        }
+
+        this.$emit("uploaded");
+        this.$emit("close");
+      } catch (error) {
+        console.error("Error uploading profile picture:", error);
+        this.errorMessage = "Nie udało się przesłać zdjęcia. Spróbuj ponownie.";
+      } finally {
+        this.isUploading = false;
       }
     },
-    getToken() {
-      return this.$store.getters.GET_TOKEN;
-    },
-  },
-  components: {
-    FileUpload,
-    TagElement,
   },
 };
 </script>
@@ -121,90 +129,86 @@ export default {
 <style scoped>
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  inset: 0;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
-.form-container {
+.dialog {
+  width: min(100%, 520px);
+  padding: 24px;
+  border-radius: 12px;
   background: white;
-  padding: 20px;
-  border-radius: 0px 0px 8px 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 20;
-  position: relative;
-  width: 650px;
-  height: 650px;
-  left: 10px;
+}
+
+h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
 }
 
 .drop-area {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px dashed #aaa;
+  border-radius: 8px;
+  color: #555;
+  cursor: pointer;
   text-align: center;
 }
 
-.thumbnail {
+.drop-area input {
   position: absolute;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  border-radius: 0px 0px 8px 8px;
-  z-index: 3;
-  left: 0px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
 }
 
-.next {
-  position: absolute;
-  background: white;
-  padding: 20px;
-  margin-left: 20px;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  width: 650px;
-  height: 60px;
-  z-index: 40;
-  top: 150px;
+.drop-area img {
+  width: 100%;
+  height: 100%;
+  max-height: 360px;
+  object-fit: contain;
+}
+
+.file-name {
+  overflow-wrap: anywhere;
+}
+
+.error-message {
+  color: #c62828;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 button {
-  background: none;
-  border: none;
-  padding: 0px;
-  color: #3498db;
-  margin: 0;
-  position: absolute;
-  right: 20px;
-  cursor: pointer;
-  width: 100px;
-}
-
-.anuluj {
-  position: absolute;
-  color: red;
-  left: 20px;
-}
-
-.add {
-  position: absolute;
-  border: 1px solid lightgray;
-  font-size: 180%;
-  padding: 0px 8px;
-  border-radius: 50%;
-  right: -10px;
-  top: 21px;
-  cursor: pointer;
-  background-color: #3498db;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #0095f6;
   color: white;
+  cursor: pointer;
 }
 
-.add:hover {
-  background-color: #099dff;
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cancel-button {
+  background: #777;
 }
 </style>

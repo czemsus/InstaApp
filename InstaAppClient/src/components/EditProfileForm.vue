@@ -1,5 +1,9 @@
 <template>
-  <SendProfilePicture v-show="showModal" @close="changeModal()" />
+  <SendProfilePicture
+    v-if="showModal"
+    @close="changeModal()"
+    @uploaded="fetchProfileImage"
+  />
   <div class="form">
     <img src="@/assets/instagram_text.png" alt="" />
 
@@ -27,7 +31,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "@/api/api";
 import SendProfilePicture from "./SendProfilePicture.vue";
-import AddingPhotoForm from "./AddingPhotoForm.vue";
 export default {
   data() {
     return {
@@ -69,7 +72,7 @@ export default {
     async fetchProfileImage() {
       try {
         const response = await axios.get(
-          `${this.apiBaseUrl}/api/profile/pfp`,
+          `${this.apiBaseUrl}/api/profile/pfp?v=${Date.now()}`,
           {
             headers: {
               Authorization: `Bearer ${this.token}`,
@@ -101,7 +104,7 @@ export default {
       console.error("Error fetching user data:", err);
     }
   },
-  components: { SendProfilePicture, AddingPhotoForm },
+  components: { SendProfilePicture },
 };
 </script>
 
