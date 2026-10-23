@@ -1,328 +1,414 @@
 <template>
-  <div class="overlay" @click="closeForm" v-if="a">
-    <div class="next" v-show="selected">
-      <button @click="sendImage">Prześlij</button>
-      <button @click="dontShow" class="anuluj">Anuluj</button>
-    </div>
-
-    <div
-      class="form-container"
+  <div class="overlay" @click.self="closeForm">
+    <section
+      class="post-form"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="post-form-title"
       @click.stop
-      @dragover.prevent
-      @drop.prevent="handleDrop"
     >
-      <FileUpload
-        name="demo[]"
-        url="/api/photos"
-        :multiple="false"
-        accept="image/*"
-        :max-file-size="1000000"
-        @select="handleSelect"
-      >
-        <template #content>
-          <div class="drop-area">
-            <img src="@/assets/home.png" width="50px" alt="" />
-            <p>Drag and drop files here to upload.</p>
+      <header class="form-header">
+        <button class="header-button cancel" type="button" @click="closeForm">
+          Anuluj
+        </button>
+        <h2 id="post-form-title">Utwórz nowy post</h2>
+        <button
+          class="header-button share"
+          type="button"
+          :disabled="!file || uploading"
+          @click="sendImage"
+        >
+          {{ uploading ? "Przesyłanie..." : "Udostępnij" }}
+        </button>
+      </header>
+
+      <div class="form-content">
+        <div
+          class="photo-panel"
+          @dragover.prevent
+          @drop.prevent="handleDrop"
+        >
+          <template v-if="thumbnailUrl">
+            <img
+              class="preview-image"
+              :src="thumbnailUrl"
+              alt="Podgląd zdjęcia do opublikowania"
+            />
+            <label class="change-photo" for="post-photo-input">
+              Zmień zdjęcie
+            </label>
+          </template>
+          <div v-else class="upload-prompt">
+            <img src="@/assets/home.png" width="48" height="48" alt="" />
+            <span>Przeciągnij zdjęcie tutaj</span>
+            <label class="choose-photo" for="post-photo-input">
+              Wybierz z urządzenia
+            </label>
           </div>
-        </template>
-      </FileUpload>
-      <div class="description-box" v-show="selected">
-        <label for="name">Opis</label>
-        <textarea
-          MaxLength="106"
-          v-model="description"
-          placeholder="Dodaj opis zdjęcia"
-          class="description-input"
-          name="desc"
-        />
-        <span :class="{ red: description.length === 106 }">
-          {{ description.length }}/106
-        </span>
-        <label for="tags">Tagi</label>
-        <div class="tags-box" v-show="selected">
           <input
-            type="text"
-            class="tags-input"
-            maxlength="16"
-            v-model="newTag"
-            name="tags"
+            id="post-photo-input"
+            class="file-input"
+            type="file"
+            accept="image/*"
+            @change="handleSelect"
           />
-          <span class="add" @click="addToTags(newTag)">+</span>
-          <div class="tagsList">
+        </div>
+
+        <div class="post-fields">
+          <label for="post-description">Opis</label>
+          <textarea
+            id="post-description"
+            v-model="description"
+            maxlength="106"
+            placeholder="Napisz coś o tym zdjęciu..."
+          />
+          <span class="counter" :class="{ red: description.length === 106 }">
+            {{ description.length }}/106
+          </span>
+
+          <label for="post-tag-input">Tagi</label>
+          <div class="tag-entry">
+            <input
+              id="post-tag-input"
+              v-model="newTag"
+              type="text"
+              maxlength="16"
+              placeholder="Dodaj tag"
+              @keydown.enter.prevent="addToTags(newTag)"
+            />
+            <button
+              class="add-tag"
+              type="button"
+              aria-label="Dodaj tag"
+              @click="addToTags(newTag)"
+            >
+              +
+            </button>
+          </div>
+
+          <div class="tag-list">
             <TagElement
               v-for="(tag, index) in tagsList"
+              :key="tag"
               :value="tag"
               @delete="deleteItem(index)"
             />
           </div>
-          <div class="msg" style="color: red">{{ msg }}</div>
-          <span id="listLen" :class="{ red: tagsList.length === 8 }"
-            >{{ tagsList.length }}/8</span
-          >
+          <p class="message" role="status">{{ msg }}</p>
+          <span class="counter" :class="{ red: tagsList.length === 8 }">
+            {{ tagsList.length }}/8
+          </span>
         </div>
       </div>
-
-      <div
-        v-if="thumbnailUrl"
-        class="thumbnail"
-        :style="{ backgroundImage: 'url(' + thumbnailUrl + ')' }"
-      ></div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script>
-import FileUpload from "primevue/fileupload";
-import { mapGetters } from "vuex";
 import TagElement from "./TagElement.vue";
 
 export default {
   data() {
     return {
       thumbnailUrl: "",
-      selected: false,
       file: null,
       token: "",
-      a: true,
-      bio: "",
       description: "",
       newTag: "",
       tagsList: [],
       msg: "",
+      uploading: false,
     };
   },
   created() {
-    this.token = this.getToken();
-  },
-  computed: {
-    ...mapGetters(["GET_TOKEN"]),
-    shouldShowButtons() {
-      return this.selected && this.description.trim() !== "";
-    },
+    this.token = this.$store.getters.GET_TOKEN;
   },
   methods: {
-    dontShow() {
-      this.a = false;
-    },
-    closeForm(event) {
-      if (event.target.classList.contains("overlay")) {
-        this.$emit("close");
-      }
+    closeForm() {
+      this.$emit("close");
     },
     handleSelect(event) {
-      this.file = event.files[0];
-      if (this.file) {
-        this.generateThumbnail(this.file);
-      } else {
-        console.error("No file selected");
-      }
+      const input = event.target;
+      this.setFile(input.files[0]);
+      input.value = "";
     },
-    generateThumbnail(file) {
+    setFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        this.msg = "Wybierz plik graficzny.";
+        return;
+      }
+      if (file.size > 1000000) {
+        this.msg = "Maksymalny rozmiar zdjęcia to 1 MB.";
+        return;
+      }
+
+      this.file = file;
+      this.msg = "";
       const reader = new FileReader();
-      reader.onload = (e) => {
-        this.thumbnailUrl = e.target.result;
-        this.selected = true;
+      reader.onload = (event) => {
+        this.thumbnailUrl = event.target.result;
       };
       reader.readAsDataURL(file);
     },
-    reloadProfile() {
-      this.$store.dispatch("RELOAD_USER_DATA");
+    handleDrop(event) {
+      this.setFile(event.dataTransfer.files[0]);
     },
     async sendImage() {
+      if (!this.file || this.uploading) return;
+
       const formdata = new FormData();
       formdata.append("album", "user_album");
       formdata.append("file", this.file);
       formdata.append("description", this.description);
       formdata.append("tags", JSON.stringify(this.tagsList));
 
-      await this.$store.dispatch("SEND_IMAGE", { formdata, token: this.token });
-      this.dontShow();
-      this.reloadProfile();
-      this.$store.dispatch("RELOAD_USER_DATA");
-    },
-    handleDrop(event) {
-      const files = event.dataTransfer.files;
-      if (files.length > 0) {
-        this.file = files[0];
-        this.handleSelect({ files: [this.file] });
+      this.uploading = true;
+      const result = await this.$store.dispatch("SEND_IMAGE", {
+        formdata,
+        token: this.token,
+      });
+      this.uploading = false;
+
+      if (result === false) {
+        this.msg = "Nie udało się opublikować posta. Spróbuj ponownie.";
+        return;
       }
-    },
-    getToken() {
-      return this.$store.getters.GET_TOKEN;
+
+      this.closeForm();
     },
     addToTags(tag) {
-      if (tag && this.tagsList.length < 8) {
-        if (!this.tagsList.includes(tag)) {
-          this.tagsList.push(tag);
-          this.newTag = "";
-          this.msg = "";
-        } else {
-          this.msg = "Jest już taki tag!!!";
-        }
+      const value = tag.trim();
+      if (!value) return;
+      if (this.tagsList.includes(value)) {
+        this.msg = "Ten tag jest już na liście.";
+      } else if (this.tagsList.length >= 8) {
+        this.msg = "Możesz dodać maksymalnie 8 tagów.";
+      } else {
+        this.tagsList.push(value);
+        this.newTag = "";
+        this.msg = "";
       }
     },
     deleteItem(index) {
-      this.tagsList = this.tagsList.filter(
-        (tag) => tag != this.tagsList[index],
-      );
+      this.tagsList.splice(index, 1);
     },
   },
-  components: {
-    FileUpload,
-    TagElement,
-  },
+  components: { TagElement },
 };
 </script>
 
 <style scoped>
-span {
-  font-size: 60%;
-  position: absolute;
-  right: 50px;
-  top: 200px;
-}
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  z-index: 100;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 10;
-}
-
-.form-container {
-  background: white;
+  justify-content: center;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  z-index: 20;
+  overflow-y: auto;
+  background: rgb(0 0 0 / 65%);
+}
+
+.post-form {
+  width: min(900px, 100%);
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 25%);
+}
+
+.form-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  min-height: 58px;
+  padding: 0 18px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.header-button {
+  width: auto;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  font-weight: 600;
+}
+
+.header-button.cancel {
+  justify-self: start;
+  color: #444;
+}
+
+.header-button.share {
+  justify-self: end;
+  color: #1877d2;
+}
+
+.header-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.form-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+}
+
+.photo-panel {
   position: relative;
-  width: 630px;
-  height: 630px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  overflow: hidden;
+  background: #f7f7f7;
 }
 
-.drop-area {
-  text-align: center;
-}
-
-.thumbnail {
-  position: absolute;
-  top: 0;
-  left: -100px;
+.preview-image {
+  display: block;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: center;
-  border-radius: 0px 0px 0px 8px;
-  z-index: 3;
+  max-height: min(70vh, 620px);
+  object-fit: contain;
 }
 
-.next {
-  position: absolute;
-  background: white;
-  padding: 20px;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  width: 830px;
-  height: 60px;
-  z-index: 40;
-  top: 152px;
-}
-
-button {
-  background: none;
-  border: none;
-  padding: 0px;
-  color: #3498db;
-  margin: 0;
-  position: absolute;
-  right: 20px;
-  cursor: pointer;
-  width: 100px;
-}
-
-.anuluj {
-  position: absolute;
-  color: red;
-  left: 20px;
-}
-
-.description-input {
-  width: 100%;
-  padding: 8px;
-  margin-top: 20px;
-  border-radius: 4px;
-}
-
-.tagsList {
-  margin-top: 10px;
+.upload-prompt {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px;
+  color: #444;
+  text-align: center;
+  cursor: pointer;
+}
+
+.choose-photo,
+.change-photo {
+  padding: 9px 14px;
+  border-radius: 7px;
+  color: #fff;
+  background: #1877d2;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.file-input {
+  position: absolute;
+  display: block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.change-photo {
+  position: absolute;
+  bottom: 14px;
+  cursor: pointer;
+}
+
+.post-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 20px;
+}
+
+.post-fields > label {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.post-fields textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
+  border: 1px solid #d4d4d4;
+  border-radius: 7px;
+  line-height: 1.5;
+}
+
+.counter {
+  align-self: flex-end;
+  color: #737373;
+  font-size: 0.75rem;
+}
+
+.tag-entry {
+  display: flex;
   gap: 8px;
 }
 
-.description-box {
-  position: absolute;
-  right: -100px;
-  top: 0px;
-  width: 200px;
-  height: 630px;
-  background: white;
-  padding: 20px;
-  border-radius: 0px 0px 8px 0px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+.tag-entry input {
+  min-width: 0;
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid #d4d4d4;
+  border-radius: 7px;
 }
 
-.tags-box {
-  position: relative;
+.add-tag {
+  position: static;
+  flex: 0 0 40px;
+  width: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  background: #1877d2;
+  font-size: 1.3rem;
+}
+
+.tag-list {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-textarea {
-  border: none;
-  height: 150px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.msg {
-  font-size: 70%;
-  position: absolute;
-  top: 0;
+.tag-list :deep(> div) {
+  width: auto;
+  max-width: 100%;
 }
 
-input {
-  outline: none;
-  background-color: white;
-  margin-top: 20px;
-  border-radius: 0px 18px 18px 0px;
-  overflow: hidden;
-  width: 170px;
+.message {
+  min-height: 18px;
+  margin: 0;
+  color: #c62828;
+  font-size: 0.8rem;
 }
 
-.add {
-  position: absolute;
-  border: 1px solid lightgray;
-  font-size: 180%;
-  padding: 0px 8px;
-  border-radius: 50%;
-  right: -10px;
-  top: 21px;
-  cursor: pointer;
-  background-color: #3498db;
-  color: white;
+.red {
+  color: #c62828;
 }
 
-.add:hover {
-  background-color: #099dff;
-}
+@media (max-width: 640px) {
+  .overlay {
+    align-items: flex-start;
+    padding: 12px;
+  }
 
-span[id="listLen"] {
-  position: absolute;
-  right: 0px;
-  top: 370px;
+  .form-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .photo-panel {
+    min-height: 250px;
+    max-height: 42vh;
+  }
+
+  .post-fields {
+    padding: 16px;
+  }
 }
 </style>
