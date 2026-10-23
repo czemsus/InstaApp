@@ -67,16 +67,32 @@ const login = {
     },
     async REGISTER({ commit }, user) {
       commit("SET_LOGIN_LOADER", true);
+      commit("SET_STATUS", null);
+      commit("SET_MESSAGE", "");
       try {
         const data = await postRegisterData(user);
-        commit("SET_STATUS", data.status);
-        commit("SET_MESSAGE", data.msg);
+        const status = data.status || (data.message ? "error" : "success");
+        const message =
+          data.msg ||
+          data.message ||
+          data.content ||
+          "Rejestracja zakończona.";
+        commit("SET_STATUS", status);
+        commit("SET_MESSAGE", message);
+        if (status === "success") {
+          router.push("/login");
+        }
       } catch (err) {
         commit("SET_STATUS", "error");
-        commit("SET_MESSAGE", err.message || "Register failed");
+        commit(
+          "SET_MESSAGE",
+          err.response?.data?.msg ||
+            err.response?.data?.message ||
+            err.message ||
+            "Nie udało się zarejestrować.",
+        );
       } finally {
         commit("SET_LOGIN_LOADER", false);
-        router.push('/login')
       }
     },
     async GET_VALID({ commit }, token) {

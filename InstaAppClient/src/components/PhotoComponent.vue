@@ -1,12 +1,19 @@
 <template>
   <div class="main">
-    <img :src="`https://instaappfinal.onrender.com/api/getimage/${id}`" alt="zdjęcie" />
+    <img :src="`${apiBaseUrl}/api/getimage/${id}`" alt="zdjęcie" />
   </div>
 </template>
 
 <script>
+import { API_BASE_URL } from "@/api/api";
+
 export default {
   props: ["id"],
+  data() {
+    return {
+      apiBaseUrl: API_BASE_URL,
+    };
+  },
 };
 </script>
 

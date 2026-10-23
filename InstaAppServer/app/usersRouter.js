@@ -130,17 +130,18 @@ const usersRouter = async (req, res) => {
           });
           res.end(
             JSON.stringify({
-              content: `Potwiedź konto : https://instaappfinal.onrender.com/api/user/confirm/${token}`,
+              status: "success",
+              msg: "Konto utworzone. Sprawdź e-mail, aby je potwierdzić.",
             }),
           );
         } else {
-          let msg = "juz jest taki mail";
-          res.writeHead(200, {
-            "Content-Type": "text/plain;charset=utf-8",
+          res.writeHead(409, {
+            "Content-Type": "application/json;charset=utf-8",
           });
           res.end(
             JSON.stringify({
-              message: msg,
+              status: "error",
+              msg: "Konto z tym adresem e-mail już istnieje.",
             }),
           );
         }

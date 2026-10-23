@@ -55,10 +55,12 @@
 <script>
 import TagElement from "./TagElement.vue";
 import FiltersComponent from "./FiltersComponent.vue";
+import { API_BASE_URL } from "@/api/api";
 export default {
   data() {
     return {
       src: null,
+      apiBaseUrl: API_BASE_URL,
       thumbnailUrl: "",
       selected: true,
       file: null,
@@ -103,7 +105,7 @@ export default {
     },
   },
   created() {
-    this.src = `https://instaappfinal.onrender.com/api/getimage/` + this.id;
+    this.src = `${this.apiBaseUrl}/api/getimage/${this.id}`;
     this.tagsList = this.tagi;
     this.description = this.desc;
   },

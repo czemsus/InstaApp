@@ -17,6 +17,7 @@
 <script>
 import profile from "@/store/profile";
 import axios from "axios";
+import { API_BASE_URL } from "@/api/api";
 
 export default {
   data() {
@@ -24,6 +25,7 @@ export default {
       user: {},
       token: null,
       profileImage: null,
+      apiBaseUrl: API_BASE_URL,
     };
   },
   methods: {
@@ -40,7 +42,7 @@ export default {
     async fetchProfileImage() {
       try {
         const response = await axios.get(
-          "https://instaappfinal.onrender.com/api/profile/pfp",
+          `${this.apiBaseUrl}/api/profile/pfp`,
           {
             headers: {
               Authorization: `Bearer ${this.token}`,

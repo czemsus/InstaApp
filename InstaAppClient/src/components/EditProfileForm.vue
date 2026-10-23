@@ -25,6 +25,7 @@
 
 <script>
 import axios from "axios";
+import { API_BASE_URL } from "@/api/api";
 import SendProfilePicture from "./SendProfilePicture.vue";
 import AddingPhotoForm from "./AddingPhotoForm.vue";
 export default {
@@ -35,6 +36,7 @@ export default {
       newLastname: "",
       newBio: "",
       profileImage: null,
+      apiBaseUrl: API_BASE_URL,
       token: null,
       showModal: false,
     };
@@ -67,7 +69,7 @@ export default {
     async fetchProfileImage() {
       try {
         const response = await axios.get(
-          "https://instaappfinal.onrender.com/api/profile/pfp",
+          `${this.apiBaseUrl}/api/profile/pfp`,
           {
             headers: {
               Authorization: `Bearer ${this.token}`,

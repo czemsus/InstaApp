@@ -24,7 +24,7 @@
       <div class="user-photos">
         <div class="photo" v-for="photo in photos.photos">
           <img
-            :src="`https://instaappfinal.onrender.com:3000/api/getimage/${photo.id}`"
+            :src="`${apiBaseUrl}/api/getimage/${photo.id}`"
             alt="zdjęcie"
             style="aspect-ratio: 1"
           />
@@ -38,12 +38,14 @@
 import Navbar from "@/components/Navbar.vue";
 import axios from "axios";
 import PhotoComponent from "@/components/PhotoComponent.vue";
+import { API_BASE_URL } from "@/api/api";
 export default {
   data() {
     return {
       email: "",
       user: null,
       profileImage: null,
+      apiBaseUrl: API_BASE_URL,
       token: this.$store.state.token,
     };
   },
@@ -71,7 +73,7 @@ export default {
     async fetchProfileImage(email) {
       try {
         const response = await axios.get(
-          `https://instaappfinal.onrender.com/api/profile/getprofilepicture/${email}`,
+          `${this.apiBaseUrl}/api/profile/getprofilepicture/${email}`,
           {
             headers: {
               Authorization: `Bearer ${this.token}`,

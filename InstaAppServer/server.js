@@ -6,7 +6,7 @@ import usersRouter from "./app/usersRouter.js";
 import profileRouter from "./app/profileRouter.js";
 import "dotenv/config";
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 const server = createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
