@@ -10,7 +10,6 @@ const getRequestData = async (req) => {
             });
 
             req.on("end", () => {
-                // mamy dane i zwracamy z promisy
                 resolve(body);
             });
 

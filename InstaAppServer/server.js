@@ -37,7 +37,6 @@ const server = createServer(async (req, res) => {
     } else if (url.includes("/api/profile") || url.includes("/api/logout")) {
       await profileRouter(req, res);
     } else {
-      // Domyślna odpowiedź 404 dla nieznanych ścieżek
       res.writeHead(404, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "Endpoint not found" }));
     }

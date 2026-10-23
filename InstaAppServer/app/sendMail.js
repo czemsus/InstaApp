@@ -1,6 +1,5 @@
 import { Resend } from "resend";
 
-// Klucz API pobierany jest bezpiecznie ze środowiska Rendera
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendMail = async (email, token) => {
