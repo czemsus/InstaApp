@@ -107,7 +107,7 @@ const getUserPhotos = async (mail) => {
 
 const filterPhoto = async (filterType, id, params) => {
   let obj = { filterType, id, ...params };
-  patch(`${API_BASE_URL}/api/filters`, obj);
+  return await patch(`${API_BASE_URL}/api/filters`, obj);
 };
 
 const getMeta = async (id) => {

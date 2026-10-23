@@ -32,7 +32,7 @@ const files = {
         return false;
       }
     },
-    async MODIFY_IMAGE_DATA({ commit }, { tags, desc, id }) {
+    async MODIFY_IMAGE_DATA({ commit, dispatch }, { tags, desc, id }) {
       try {
         let object = {
           tags: tags,
@@ -40,8 +40,10 @@ const files = {
           id: id,
         };
         const data = await editPhoto(object);
-        router.push("/profile");
+        await dispatch("PHOTO_CHANGED");
+        return data;
       } catch (err) {
+        console.error("Error updating photo data:", err);
         return false;
       }
     },

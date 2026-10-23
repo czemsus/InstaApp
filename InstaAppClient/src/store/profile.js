@@ -14,6 +14,7 @@ const profile = {
     return {
       userData: null,
       userPhotos: [],
+      photoRevision: 0,
     };
   },
 
@@ -24,6 +25,9 @@ const profile = {
     SET_USER_PHOTOS(state, photos) {
       state.userPhotos = photos;
     },
+    INCREMENT_PHOTO_REVISION(state) {
+      state.photoRevision += 1;
+    },
   },
 
   getters: {
@@ -32,6 +36,9 @@ const profile = {
     },
     GET_USER_PHOTOS(state) {
       return state.userPhotos;
+    },
+    PHOTO_REVISION(state) {
+      return state.photoRevision;
     },
   },
 
@@ -69,8 +76,14 @@ const profile = {
       if (token) {
         await dispatch("FETCH_USER_DATA", token);
         const user = getters.GET_USER_DATA;
-        await dispatch("GET_USER_PHOTOS", user.email);
+        if (user?.email) {
+          await dispatch("GET_USER_PHOTOS", user.email);
+        }
       }
+    },
+    async PHOTO_CHANGED({ commit, dispatch }) {
+      commit("INCREMENT_PHOTO_REVISION");
+      await dispatch("RELOAD_USER_DATA");
     },
     async SEND_PROFILE_PICTURE({ commit }, { formdata }) {
       try {
@@ -102,9 +115,11 @@ const profile = {
         return false;
       }
     },
-    async FILTER_PHOTO({ commit }, { type, id, obj }) {
+    async FILTER_PHOTO({ dispatch }, { type, id, obj }) {
       try {
         const data = await filterPhoto(type, id, obj);
+        await dispatch("PHOTO_CHANGED");
+        return data;
       } catch (err) {
         console.error("Error:", err);
         return false;

@@ -3,7 +3,7 @@
     <div class="main">
       <div class="photo-container">
         <div class="thumbnail">
-          <img :src="src" alt="zdjęcie" />
+          <img :src="imageUrl" alt="zdjęcie" />
         </div>
         <div class="description-box" v-show="selected">
           <label for="name">Opis</label>
@@ -59,7 +59,6 @@ import { API_BASE_URL } from "@/api/api";
 export default {
   data() {
     return {
-      src: null,
       apiBaseUrl: API_BASE_URL,
       thumbnailUrl: "",
       selected: true,
@@ -74,6 +73,11 @@ export default {
     };
   },
   props: ["id", "tagi", "desc"],
+  computed: {
+    imageUrl() {
+      return `${this.apiBaseUrl}/api/getimage/${this.id}?v=${this.$store.getters.PHOTO_REVISION}`;
+    },
+  },
   methods: {
     closeForm(event) {
       if (event.target.classList.contains("overlay")) {
@@ -97,15 +101,17 @@ export default {
       );
     },
     async modifyImageData() {
-      await this.$store.dispatch("MODIFY_IMAGE_DATA", {
+      const result = await this.$store.dispatch("MODIFY_IMAGE_DATA", {
         tags: this.tagsList,
         desc: this.description,
         id: this.id,
       });
+      if (result !== false) {
+        this.$emit("close");
+      }
     },
   },
   created() {
-    this.src = `${this.apiBaseUrl}/api/getimage/${this.id}`;
     this.tagsList = this.tagi;
     this.description = this.desc;
   },

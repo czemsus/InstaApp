@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <img :src="`${apiBaseUrl}/api/getimage/${id}`" alt="zdjęcie" />
+    <img :src="imageUrl" alt="zdjęcie" />
   </div>
 </template>
 
@@ -13,6 +13,11 @@ export default {
     return {
       apiBaseUrl: API_BASE_URL,
     };
+  },
+  computed: {
+    imageUrl() {
+      return `${this.apiBaseUrl}/api/getimage/${this.id}?v=${this.$store.getters.PHOTO_REVISION}`;
+    },
   },
 };
 </script>
