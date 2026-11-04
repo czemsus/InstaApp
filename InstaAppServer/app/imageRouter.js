@@ -23,7 +23,18 @@ const imageRouter = async (req, res) => {
   switch (req.method) {
     case "GET": {
       if (req.url === "/api/photos") {
-        const photos = await JsonController.getPhotos();
+        const authorization = req.headers.authorization;
+        const token = authorization?.startsWith("Bearer ")
+          ? authorization.slice(7)
+          : null;
+        const tokenData = token ? verifyToken(token) : null;
+        if (token && tokenData === "expired") {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Invalid or expired token" }));
+          return;
+        }
+
+        const photos = await JsonController.getPhotos(tokenData?.email ?? null);
         res.writeHead(200, { "Content-Type": "application/json;charset=utf-8" });
         res.end(JSON.stringify({ status: "200", data: photos }));
         return;
@@ -144,6 +155,50 @@ const imageRouter = async (req, res) => {
     }
 
     case "PATCH": {
+      const likeMatch = req.url.match(/^\/api\/photos\/([0-9]+)\/like$/);
+      if (likeMatch) {
+        const authorization = req.headers.authorization;
+        const token = authorization?.startsWith("Bearer ")
+          ? authorization.slice(7)
+          : null;
+        const tokenData = token ? verifyToken(token) : "expired";
+        if (tokenData === "expired") {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Authentication required" }));
+          return;
+        }
+
+        const data = JSON.parse(await getRequestData(req));
+        if (typeof data.liked !== "boolean") {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "A boolean liked value is required" }));
+          return;
+        }
+
+        const id = Number(likeMatch[1]);
+        const photo = await JsonController.getPhoto(id);
+        if (!photo) {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Photo not found" }));
+          return;
+        }
+
+        const likesCount = await JsonController.setPhotoLike(
+          id,
+          tokenData.email,
+          data.liked,
+        );
+        res.writeHead(200, { "Content-Type": "application/json;charset=utf-8" });
+        res.end(
+          JSON.stringify({
+            status: "success",
+            liked: data.liked,
+            likesCount,
+          }),
+        );
+        return;
+      }
+
       const photoMatch = req.url.match(/\/api\/photos\/([0-9]+)/);
       if (photoMatch) {
         const id = Number(photoMatch[1]);

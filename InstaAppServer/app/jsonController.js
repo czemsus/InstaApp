@@ -10,6 +10,8 @@ const mapPhoto = (row) => ({
   history: row.history,
   tags: row.tags,
   desc: row.description ?? undefined,
+  likesCount: Number(row.likes_count ?? 0),
+  likedByUser: Boolean(row.liked_by_user ?? false),
 });
 
 export default class JsonController {
@@ -38,9 +40,43 @@ export default class JsonController {
     return result.rows[0] ? mapPhoto(result.rows[0]) : null;
   }
 
-  static async getPhotos() {
-    const result = await query("SELECT * FROM photos ORDER BY id");
+  static async getPhotos(userEmail = null) {
+    const result = await query(
+      `SELECT photos.*,
+              (SELECT COUNT(*) FROM photo_likes
+               WHERE photo_likes.photo_id = photos.id) AS likes_count,
+              EXISTS (
+                SELECT 1 FROM photo_likes
+                WHERE photo_likes.photo_id = photos.id
+                  AND photo_likes.user_email = $1
+              ) AS liked_by_user
+       FROM photos
+       ORDER BY id`,
+      [userEmail],
+    );
     return result.rows.map(mapPhoto);
+  }
+
+  static async setPhotoLike(id, userEmail, liked) {
+    if (liked) {
+      await query(
+        `INSERT INTO photo_likes (photo_id, user_email)
+         VALUES ($1, $2)
+         ON CONFLICT (photo_id, user_email) DO NOTHING`,
+        [id, userEmail],
+      );
+    } else {
+      await query(
+        "DELETE FROM photo_likes WHERE photo_id = $1 AND user_email = $2",
+        [id, userEmail],
+      );
+    }
+
+    const result = await query(
+      "SELECT COUNT(*) AS likes_count FROM photo_likes WHERE photo_id = $1",
+      [id],
+    );
+    return Number(result.rows[0].likes_count);
   }
 
   static async getPhoto(id) {

@@ -42,4 +42,13 @@ export const initializeDatabase = async () => {
       description TEXT
     )
   `);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS photo_likes (
+      photo_id BIGINT NOT NULL REFERENCES photos(id) ON DELETE CASCADE,
+      user_email TEXT NOT NULL REFERENCES users(mail) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (photo_id, user_email)
+    )
+  `);
 };
