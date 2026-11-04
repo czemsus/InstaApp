@@ -9,7 +9,10 @@
         :desc="photo.desc"
         :tags="photo.tags"
         :user="photo.album"
+        :likes-count="photo.likesCount"
+        :liked-by-user="photo.likedByUser"
       />
+      <p v-if="loadError" class="load-error" role="alert">{{ loadError }}</p>
     </div>
   </div>
 </template>
@@ -22,17 +25,23 @@ export default {
   components: { Navbar, PhotoCard },
   data() {
     return {
-      photos: [],
+      loadError: "",
     };
   },
-  methods: {
-    getPhotos() {
+  computed: {
+    photos() {
       return this.$store.getters.GET_LIST;
     },
   },
   async created() {
-    await this.$store.dispatch("FETCH_PHOTOS");
-    this.photos = this.getPhotos();
+    try {
+      const result = await this.$store.dispatch("FETCH_PHOTOS");
+      if (result === false) {
+        this.loadError = "Nie udało się załadować zdjęć. Odśwież stronę i spróbuj ponownie.";
+      }
+    } catch (error) {
+      this.loadError = "Nie udało się załadować zdjęć. Odśwież stronę i spróbuj ponownie.";
+    }
   },
 };
 </script>
@@ -48,5 +57,12 @@ export default {
   flex-direction: column;
   width: 70%;
   align-items: center;
+  padding: 16px 0;
+  gap: 16px;
+}
+
+.load-error {
+  color: #c62828;
+  text-align: center;
 }
 </style>

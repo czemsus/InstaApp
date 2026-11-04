@@ -89,7 +89,13 @@ const sendProfilePicture = async (data) => {
 };
 
 const getAllPhotos = async () => {
-  return await get(`${API_BASE_URL}/api/photos`);
+  const token = localStorage.getItem("userToken");
+  return await get(`${API_BASE_URL}/api/photos`, token);
+};
+
+const setPhotoLike = async (id, liked) => {
+  const token = localStorage.getItem("userToken");
+  return await patch(`${API_BASE_URL}/api/photos/${id}/like`, { liked }, token);
 };
 
 const getUserData = async (mail) => {
@@ -125,6 +131,7 @@ export {
   editPhoto,
   sendProfilePicture,
   getAllPhotos,
+  setPhotoLike,
   getUserData,
   getUserPhotos,
   filterPhoto,
