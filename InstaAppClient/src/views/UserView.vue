@@ -27,10 +27,16 @@
         <div class="user-bio">{{ user.user.bio }}</div>
       </div>
       <div v-if="user?.user" class="user-photos">
+        <p v-if="photosError" class="photos-error" role="alert">
+          {{ photosError }}
+        </p>
+        <p v-else-if="userPhotos.length === 0" class="empty-photos">
+          Uytkownik nie opublikował jeszcze zdjęć
+        </p>
         <PhotoComponent
+          v-else
           v-for="photo in userPhotos"
           :key="photo.id"
-          class="photo"
           :id="photo.id"
           role="button"
           tabindex="0"
@@ -66,6 +72,7 @@ export default {
       profileImage: null,
       apiBaseUrl: API_BASE_URL,
       selectedPhotoId: null,
+      photosError: "",
     };
   },
   computed: {
@@ -124,14 +131,18 @@ export default {
       this.user = null;
       this.profileImage = null;
       this.selectedPhotoId = null;
+      this.photosError = "";
 
       await this.$store.dispatch("GET_SOMEONES_DATA", email);
-      await this.$store.dispatch("GET_SOMEONES_PHOTOS", email);
+      const photos = await this.$store.dispatch("GET_SOMEONES_PHOTOS", email);
       if (this.email !== email) {
         return;
       }
 
       this.user = this.$store.getters.GET_USER_DATA;
+      if (photos === false) {
+        this.photosError = "Nie udało się załadować zdjęć użytkownika.";
+      }
       await this.fetchProfileImage(email);
     },
   },
@@ -196,27 +207,28 @@ export default {
 }
 
 .user-photos {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(900px, calc(100% - 32px));
   gap: 5px;
   margin-top: 50px;
-  justify-content: flex-start;
 }
 
-.photo {
-  flex: 0 0 calc(33.33% - 10px);
-  aspect-ratio: 1;
-  margin: 2px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: 0;
-  border: 0;
-  cursor: pointer;
+.photos-error,
+.empty-photos {
+  grid-column: 1 / -1;
+  padding: 24px;
+  color: #666;
+  text-align: center;
 }
 
-.photo img {
-  width: 290px;
-  aspect-ratio: 1;
+.photos-error {
+  color: #c62828;
+}
+
+@media (max-width: 640px) {
+  .user-photos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 </style>

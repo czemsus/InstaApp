@@ -109,10 +109,13 @@ const profile = {
     async GET_SOMEONES_PHOTOS({ commit }, mail) {
       try {
         const data = await getUserPhotos(mail);
-        if (data) {
-          commit("SET_USER_PHOTOS", data.photos || []);
+        if (!Array.isArray(data?.photos)) {
+          throw new Error("Invalid profile photos response");
         }
+        commit("SET_USER_PHOTOS", data.photos);
+        return data.photos;
       } catch (err) {
+        console.error("Error fetching user photos:", err);
         return false;
       }
     },

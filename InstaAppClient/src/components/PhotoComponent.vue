@@ -24,13 +24,18 @@ export default {
 
 <style scoped>
 .main {
-  flex: 0 0 calc(33.33% - 10px);
-  max-width: calc(33.33% - 10px);
+  width: 100%;
+  max-width: none;
   aspect-ratio: 1;
-  margin: 2px;
+  margin: 0;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 img {
-  max-width: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>
