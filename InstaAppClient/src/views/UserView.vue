@@ -2,7 +2,7 @@
   <div class="main">
     <Navbar />
     <div class="profile-container">
-      <div class="user-data">
+      <div v-if="user?.user" class="user-data">
         <div class="profile-picture">
           <img
             class="profile-image"
@@ -13,6 +13,9 @@
         <div class="user-info">
           <div class="user-mail">
             {{ email }}
+            <RouterLink v-if="isOwnProfile" to="/edit" class="edit-profile">
+              Edytuj profil
+            </RouterLink>
           </div>
           <div class="user-name">
             {{ user.user.name }} {{ user.user.lastname }}
@@ -21,7 +24,7 @@
 
         <div class="user-bio">{{ user.user.bio }}</div>
       </div>
-      <div class="user-photos">
+      <div v-if="user?.user" class="user-photos">
         <div class="photo" v-for="photo in photos.photos">
           <img
             :src="`${apiBaseUrl}/api/getimage/${photo.id}`"
@@ -46,26 +49,25 @@ export default {
       user: null,
       profileImage: null,
       apiBaseUrl: API_BASE_URL,
-      token: this.$store.state.token,
     };
   },
   computed: {
+    isOwnProfile() {
+      const currentEmail = this.$store.getters.GET_EMAIL;
+      return (
+        typeof currentEmail === "string" &&
+        currentEmail.toLowerCase() === this.email.toLowerCase()
+      );
+    },
     photos() {
       return this.$store.getters.GET_USER_PHOTOS;
     },
-    userData() {
-      return this.$store.getters.GET_USER_DATA;
-    },
   },
   watch: {
-    userData: {
-      handler(newValue) {
-        this.user = newValue;
+    "$route.params.email": {
+      handler(email) {
+        this.loadProfile(email);
       },
-      immediate: true,
-    },
-    photos: {
-      handler(newValue) {},
       immediate: true,
     },
   },
@@ -91,12 +93,20 @@ export default {
         console.error("Error fetching profile image", error);
       }
     },
-  },
-  async created() {
-    this.email = this.$route.params.email;
-    await this.$store.dispatch("GET_SOMEONES_DATA", this.email);
-    await this.$store.dispatch("GET_SOMEONES_PHOTOS", this.email);
-    await this.fetchProfileImage(this.email);
+    async loadProfile(email) {
+      this.email = email;
+      this.user = null;
+      this.profileImage = null;
+
+      await this.$store.dispatch("GET_SOMEONES_DATA", email);
+      await this.$store.dispatch("GET_SOMEONES_PHOTOS", email);
+      if (this.email !== email) {
+        return;
+      }
+
+      this.user = this.$store.getters.GET_USER_DATA;
+      await this.fetchProfileImage(email);
+    },
   },
   components: { Navbar, PhotoComponent },
 };
@@ -123,6 +133,20 @@ export default {
 
 .user-mail {
   font-size: 150%;
+}
+
+.edit-profile {
+  margin-left: 16px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: rgb(235, 235, 235);
+  color: #111;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.edit-profile:hover {
+  background-color: rgb(210, 210, 210);
 }
 
 .user-data {
