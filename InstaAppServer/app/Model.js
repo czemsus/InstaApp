@@ -1,37 +1,4 @@
-import { encryptPass } from "./bcrypt.js";
-
-export default class Photo {
-  constructor(album, originalName, url, tags, desc) {
-    this.id = Date.now();
-    this.album = album;
-    this.originalName = originalName;
-    this.owner = "";
-    this.url = url;
-    this.lastChange = "original";
-    this.history = [{ status: "original", timestamp: Date.now() }];
-    this.tags = tags;
-    this.desc = desc;
-  }
-}
-
-export class User {
-  constructor(name, lastname, mail) {
-    this.id = users.length;
-    this.name = name;
-    this.lastname = lastname;
-    this.mail = mail;
-    this.confirmed = false;
-    this.bio = "";
-    this.image = null;
-  }
-}
-
-let photos = [];
-let tagsObjects = [];
-let users = [];
-let usedTokens = [];
-
-let tags = [
+const tags = [
   "#love",
   "#instagood",
   "#fashion",
@@ -58,14 +25,10 @@ let tags = [
   "#food",
 ];
 
-for (let i = 0; i < tags.length; i++) {
-  let tag = {
-    id: i,
-    name: tags[i],
-    popularity: parseInt(Math.random() * 500).toFixed(),
-  };
-  tagsObjects.push(tag);
-}
+const tagsObjects = tags.map((name, id) => ({
+  id,
+  name,
+  popularity: parseInt(Math.random() * 500).toFixed(),
+}));
 
-export { photos };
-export { tags, tagsObjects, users, usedTokens };
+export { tags, tagsObjects };

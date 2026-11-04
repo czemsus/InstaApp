@@ -1,10 +1,8 @@
-import path from "path";
 import FilterController from "./filtersController.js";
-import { photos } from "./Model.js";
 import fs from "fs";
 import getRequestData from "./getRequestData.js";
+import JsonController from "./jsonController.js";
 
-const __dirname = path.resolve();
 const filtersController = new FilterController();
 
 const filtersRouter = async (req, res) => {
@@ -28,16 +26,16 @@ const filtersRouter = async (req, res) => {
           );
         } else if (req.url.match(/\/api\/getimage\/([0-9]+)/)) {
           let id = req.url.match(/\/api\/getimage\/([0-9]+)/)[1];
-          let image = photos.filter((photo) => photo.id == id);
+          let image = await JsonController.getPhoto(id);
 
-          if (!image.length || !image[0].url || !fs.existsSync(image[0].url)) {
+          if (!image?.url || !fs.existsSync(image.url)) {
             res.writeHead(404, { "Content-Type": "application/json" });
             return res.end(
               JSON.stringify({ error: "Image not found on disk" }),
             );
           }
 
-          fs.readFile(image[0].url, (err, data) => {
+          fs.readFile(image.url, (err, data) => {
             if (err) {
               res.writeHead(404, { "Content-Type": "text/plain" });
               res.end("Image not found");
@@ -55,14 +53,14 @@ const filtersRouter = async (req, res) => {
           let rawData = await getRequestData(req);
           let data = JSON.parse(rawData);
 
-          let img = photos.filter((photo) => photo.id == data.id);
+          let img = await JsonController.getPhoto(data.id);
 
-          if (!img.length || !img[0].url) {
+          if (!img?.url) {
             res.writeHead(404, { "Content-Type": "application/json" });
             return res.end(JSON.stringify({ error: "Photo ID not found" }));
           }
 
-          if (!fs.existsSync(img[0].url)) {
+          if (!fs.existsSync(img.url)) {
             res.writeHead(404, { "Content-Type": "application/json" });
             return res.end(
               JSON.stringify({ error: "Image file does not exist on server" }),
@@ -73,26 +71,26 @@ const filtersRouter = async (req, res) => {
           switch (data.filterType) {
             case "rotate":
               result = await filtersController.rotateImg(
-                img[0].url,
+                img.url,
                 data.angle || 0,
               );
               break;
             case "resize":
               result = await filtersController.resizeImg(
-                img[0].url,
+                img.url,
                 data.width,
                 data.height,
               );
               break;
             case "reformat":
               result = await filtersController.reformatImg(
-                img[0].url,
+                img.url,
                 data.format || "png",
               );
               break;
             case "crop":
               result = await filtersController.cropImg(
-                img[0].url,
+                img.url,
                 data.w || 200,
                 data.h || 200,
                 data.l || 20,
@@ -100,20 +98,20 @@ const filtersRouter = async (req, res) => {
               );
               break;
             case "greyscale":
-              result = await filtersController.grayscaleImg(img[0].url);
+              result = await filtersController.grayscaleImg(img.url);
               break;
             case "flip":
-              result = await filtersController.flipImg(img[0].url);
+              result = await filtersController.flipImg(img.url);
               break;
             case "flop":
-              result = await filtersController.flopImg(img[0].url);
+              result = await filtersController.flopImg(img.url);
               break;
             case "negate":
-              result = await filtersController.negateImg(img[0].url);
+              result = await filtersController.negateImg(img.url);
               break;
             case "tint":
               result = await filtersController.tintImg(
-                img[0].url,
+                img.url,
                 data.red,
                 data.green,
                 data.blue,

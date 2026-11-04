@@ -1,14 +1,9 @@
-import { photos } from "./Model.js";
 import fs from "fs";
-import path from "path";
-import { tagsObjects } from "./Model.js";
 import TagsController from "./tagsController.js";
 import getRequestData from "./getRequestData.js";
 import JsonController from "./jsonController.js";
 
-const __dirname = path.resolve();
 const tagsController = new TagsController();
-const jsonController = new JsonController();
 
 const tagsRouter = async (req, res) => {
   try {
@@ -70,13 +65,13 @@ const tagsRouter = async (req, res) => {
           const idToDelete = parseInt(
             req.url.match(/\/api\/photos\/([0-9]+)/)[1],
           );
-          const photoToDelete = photos.find((obj) => obj.id === idToDelete);
+          const photoToDelete = await JsonController.getPhoto(idToDelete);
 
           if (photoToDelete) {
+            await JsonController.deletePhoto(idToDelete);
             if (fs.existsSync(photoToDelete.url)) {
-              fs.unlinkSync(photoToDelete.url);
+              await fs.promises.unlink(photoToDelete.url);
             }
-            jsonController.deletePhoto(idToDelete);
             res.writeHead(200, {
               "Content-Type": "application/json;charset=utf-8",
             });
@@ -108,7 +103,7 @@ const tagsRouter = async (req, res) => {
           let rawData = await getRequestData(req);
           let data = JSON.parse(rawData);
 
-          const updatedPhoto = jsonController.editPhoto(idToEdit || data.id, {
+          const updatedPhoto = await JsonController.editPhoto(idToEdit || data.id, {
             tags: data.tags,
             history: data.history,
           });

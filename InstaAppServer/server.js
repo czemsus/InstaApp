@@ -5,6 +5,7 @@ import filtersRouter from "./app/filtersRouter.js";
 import usersRouter from "./app/usersRouter.js";
 import profileRouter from "./app/profileRouter.js";
 import "dotenv/config";
+import { initializeDatabase } from "./app/database.js";
 
 const PORT = process.env.PORT || 3000;
 
@@ -48,6 +49,8 @@ const server = createServer(async (req, res) => {
     }
   }
 });
+
+await initializeDatabase();
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);

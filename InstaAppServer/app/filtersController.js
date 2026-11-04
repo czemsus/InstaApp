@@ -3,32 +3,21 @@ import JsonController from "./jsonController.js";
 import sharp from "sharp";
 import fs from "fs";
 
-const __dirname = path.resolve();
-
 export default class FilterController {
   constructor() {}
 
-  getMeta(id) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let image = JsonController.getPhotos().find((obj) => obj.id === id);
-        if (!image) {
-          reject(new Error("Image not found"));
-          return;
-        }
+  async getMeta(id) {
+    const image = await JsonController.getPhoto(id);
+    if (!image) {
+      throw new Error("Image not found");
+    }
 
-        const imagePath = path.join(image.url);
-        if (!fs.existsSync(imagePath)) {
-          reject(new Error("Image file not found"));
-          return;
-        }
+    const imagePath = path.join(image.url);
+    if (!fs.existsSync(imagePath)) {
+      throw new Error("Image file not found");
+    }
 
-        let meta = await sharp(imagePath).metadata();
-        resolve(meta);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    return sharp(imagePath).metadata();
   }
 
   async rotateImg(filePath, angle) {

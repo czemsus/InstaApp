@@ -2,21 +2,28 @@ import path from "path";
 import getRequestData from "./getRequestData.js";
 import { usersController } from "./usersController.js";
 import { verifyToken } from "./jwt.js";
-import { photos, users } from "./Model.js";
 import formidable from "formidable";
 import fs from "fs";
+import JsonController from "./jsonController.js";
+import { fileURLToPath } from "url";
 
-const __dirname = path.resolve();
+const uploadsDirectory = fileURLToPath(new URL("../uploads/", import.meta.url));
 
 const profileRouter = async (req, res) => {
   switch (req.method) {
     case "GET":
       if (req.url == "/api/profile") {
         let token = usersController.getTokenFromUrl(req, res);
-        if (token != "expired") {
-          let decoded = verifyToken(token);
-
-          let user = users.find((user) => user.mail == decoded.email);
+        let decoded = verifyToken(token);
+        if (decoded != "expired") {
+          let user = await usersController.getUser(decoded.email);
+          if (!user) {
+            res.writeHead(404, {
+              "Content-Type": "application/json;charset=utf-8",
+            });
+            res.end(JSON.stringify({ msg: "Nie znaleziono użytkownika" }));
+            return;
+          }
           res.writeHead(200, {
             "Content-Type": "text/plain;charset=utf-8",
           });
@@ -26,7 +33,7 @@ const profileRouter = async (req, res) => {
               name: user.name,
               lastname: user.lastname,
               bio: user.bio,
-              picture: user.picture,
+              picture: user.image,
             })
           );
         } else {
@@ -43,9 +50,13 @@ const profileRouter = async (req, res) => {
       } else if (req.url.split("?")[0] == "/api/profile/pfp") {
         let token = usersController.getTokenFromUrl(req, res);
         let data = verifyToken(token);
+        if (data === "expired") {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Invalid or expired token" }));
+          return;
+        }
         let imagePath = path.join(
-          __dirname,
-          "uploads",
+          uploadsDirectory,
           data.email,
           "profile.png"
         );
@@ -67,7 +78,7 @@ const profileRouter = async (req, res) => {
           /\/api\/profile\/getprofilepicture\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
         );
         let email = emailMatch[1];
-        let imagePath = path.join(__dirname, "uploads", email, "profile.png");
+        let imagePath = path.join(uploadsDirectory, email, "profile.png");
         fs.readFile(imagePath, (err, data) => {
           if (err) {
             res.writeHead(404, { "Content-Type": "text/plain" });
@@ -84,6 +95,7 @@ const profileRouter = async (req, res) => {
           /\/api\/profile\/getphotos\/([^\s@]+@[^\s@]+\.[^\s@]+)$/
         );
         let email = emailMatch[1];
+        let photos = await JsonController.getPhotos();
         let photos1 = photos.filter((photo) => photo.album == email);
         res.writeHead(200, {
           "Content-Type": "text/plain;charset=utf-8",
@@ -99,6 +111,11 @@ const profileRouter = async (req, res) => {
       if (req.url == "/api/profile/upload") {
         let token = usersController.getTokenFromUrl(req, res);
         let data = verifyToken(token);
+        if (data === "expired") {
+          res.writeHead(401, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Invalid or expired token" }));
+          return;
+        }
         let email = data.email;
         const form = new formidable.IncomingForm();
         form.parse(req, async (err, fields, files) => {
@@ -119,8 +136,7 @@ const profileRouter = async (req, res) => {
             }
 
             const profileDirectory = path.join(
-              __dirname,
-              "uploads",
+              uploadsDirectory,
               email,
             );
             await fs.promises.mkdir(profileDirectory, { recursive: true });
@@ -164,9 +180,9 @@ const profileRouter = async (req, res) => {
         let data = await getRequestData(req);
         data = JSON.parse(data);
         let token = usersController.getTokenFromUrl(req, res);
-        if (token != "expired") {
-          let decoded = verifyToken(token);
-          usersController.modifyUserData(
+        let decoded = verifyToken(token);
+        if (decoded != "expired") {
+          await usersController.modifyUserData(
             decoded.email,
             data.name,
             data.lastname,

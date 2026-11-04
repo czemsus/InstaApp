@@ -1,172 +1,101 @@
 import path from "path";
-import { User, users } from "./Model.js";
+import fs from "fs/promises";
 import getRequestData from "./getRequestData.js";
-
 import { usersController } from "./usersController.js";
 import { createToken, verifyToken } from "./jwt.js";
-import { decryptPass } from "./bcrypt.js";
 import { sendMail } from "./sendMail.js";
-import fs from "fs";
+import { fileURLToPath } from "url";
 
-const __dirname = path.resolve();
+const uploadsDirectory = fileURLToPath(new URL("../uploads/", import.meta.url));
+
+const sendJson = (res, status, data) => {
+  res.writeHead(status, { "Content-Type": "application/json;charset=utf-8" });
+  res.end(JSON.stringify(data));
+};
 
 const usersRouter = async (req, res) => {
-  switch (req.method) {
-    case "GET":
-      if (req.url == "/api/user") {
-        res.writeHead(200, {
-          "Content-Type": "text/plain;charset=utf-8",
-        });
-        res.end(
-          JSON.stringify({
-            status: "200",
-            users: users,
-          }),
-        );
-        break;
-      } else if (
-        req.url.match(
-          /\/api\/user\/confirm\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
-        )
-      ) {
-        const jwt = req.url.match(
-          /\/api\/user\/confirm\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
-        )[1];
+  if (req.method === "GET") {
+    if (req.url === "/api/user") {
+      sendJson(res, 200, {
+        status: "200",
+        users: await usersController.getUsers(),
+      });
+      return;
+    }
 
-        if (verifyToken(jwt) == "expired") {
-          res.writeHead(200, {
-            "Content-Type": "text/plain;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              message: "Link wygasł",
-            }),
-          );
-        } else {
-          res.writeHead(200, {
-            "Content-Type": "text/plain;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              message: "Konto aktywowane",
-            }),
-          );
-          let data = verifyToken(jwt);
-          usersController.verifyAccount(data.email);
-        }
-      } else if (
-        req.url.match(
-          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
-        )
-      ) {
-        const jwt = req.url.match(
-          /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
-        )[1];
-        let email = verifyToken(jwt).email;
-        let valid;
-        if (verifyToken(jwt) == "expired") {
-          valid = false;
-        } else {
-          valid = true;
-        }
-        res.writeHead(200, {
-          "Content-Type": "text/plain;charset=utf-8",
-        });
-        res.end(
-          JSON.stringify({
-            valid: valid,
-            email: email,
-          }),
-        );
-      } else if (req.url.match(/\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/)) {
-        let email = req.url.match(
-          /\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/,
-        )[1];
-        let user = users.find((user) => user.mail == email);
-        if (user) {
-          res.writeHead(200, {
-            "Content-Type": "text/plain;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              user,
-            }),
-          );
-        } else {
-          res.writeHead(200, {
-            "Content-Type": "text/plain;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              user: false,
-            }),
-          );
-        }
+    const confirmationMatch = req.url.match(
+      /\/api\/user\/confirm\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
+    );
+    if (confirmationMatch) {
+      const data = verifyToken(confirmationMatch[1]);
+      if (data === "expired") {
+        sendJson(res, 200, { message: "Link wygasł" });
+      } else {
+        await usersController.verifyAccount(data.email);
+        sendJson(res, 200, { message: "Konto aktywowane" });
       }
-      break;
-    case "POST":
-      if (req.url == "/api/user/register") {
-        let data = await getRequestData(req);
-        data = JSON.parse(data);
-        if (usersController.register(data)) {
-          let token = await createToken(data.email);
-          sendMail(data.email, token);
-          let dirPath = path.join(__dirname, "uploads", data.email);
-          if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-          }
+      return;
+    }
 
-          let sourcePath = path.join(__dirname, "uploads", "pfp.png");
-          let destinationPath = path.join(dirPath, "profile.png");
+    const checkTokenMatch = req.url.match(
+      /\/api\/user\/checktoken\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
+    );
+    if (checkTokenMatch) {
+      const data = verifyToken(checkTokenMatch[1]);
+      sendJson(res, 200, {
+        valid: data !== "expired",
+        email: data === "expired" ? undefined : data.email,
+      });
+      return;
+    }
 
-          fs.copyFile(sourcePath, destinationPath, (err) => {
-            if (err) {
-              console.error("Error copying the file:", err);
-            } else {
-            }
-          });
-          res.writeHead(200, {
-            "Content-Type": "text/plain;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              status: "success",
-              msg: "Konto utworzone. Sprawdź e-mail, aby je potwierdzić.",
-            }),
-          );
-        } else {
-          res.writeHead(409, {
-            "Content-Type": "application/json;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              status: "error",
-              msg: "Konto z tym adresem e-mail już istnieje.",
-            }),
-          );
-        }
+    const emailMatch = req.url.match(
+      /\/api\/user\/([^\s@]+@[^\s@]+\.[^\s@]+)$/,
+    );
+    if (emailMatch) {
+      const user = await usersController.getUser(emailMatch[1]);
+      sendJson(res, 200, { user: user || false });
+    }
+    return;
+  }
 
-        break;
-      } else if (req.url == "/api/user/login") {
-        let data = await getRequestData(req);
-        data = JSON.parse(data);
-        let loginInfo = await usersController.login(data.email, data.password);
-        res.writeHead(200, {
-          "Content-Type": "text/plain;charset=utf-8",
+  if (req.method === "POST") {
+    if (req.url === "/api/user/register") {
+      const data = JSON.parse(await getRequestData(req));
+      if (!(await usersController.register(data))) {
+        sendJson(res, 409, {
+          status: "error",
+          msg: "Konto z tym adresem e-mail już istnieje.",
         });
-        res.end(
-          JSON.stringify({
-            token: loginInfo.token,
-            status: loginInfo.status,
-            msg: loginInfo.msg,
-          }),
-        );
         return;
       }
-    case "DELETE":
-      break;
-    case "PATCH":
-      break;
+
+      const token = await createToken(data.email);
+      await sendMail(data.email, token);
+
+      const directoryPath = path.join(uploadsDirectory, data.email);
+      await fs.mkdir(directoryPath, { recursive: true });
+      await fs.copyFile(
+        path.join(uploadsDirectory, "pfp.png"),
+        path.join(directoryPath, "profile.png"),
+      );
+
+      sendJson(res, 200, {
+        status: "success",
+        msg: "Konto utworzone. Sprawdź e-mail, aby je potwierdzić.",
+      });
+      return;
+    }
+
+    if (req.url === "/api/user/login") {
+      const data = JSON.parse(await getRequestData(req));
+      const loginInfo = await usersController.login(data.email, data.password);
+      sendJson(res, 200, {
+        token: loginInfo.token,
+        status: loginInfo.status,
+        msg: loginInfo.msg,
+      });
+    }
   }
 };
 

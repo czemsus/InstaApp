@@ -1,239 +1,228 @@
-import { photos } from "./Model.js";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import formidable from "formidable";
 import JsonController from "./jsonController.js";
 import getRequestData from "./getRequestData.js";
 import { verifyToken } from "./jwt.js";
-const __dirname = path.resolve();
+import { fileURLToPath } from "url";
+
+const uploadsDirectory = fileURLToPath(new URL("../uploads/", import.meta.url));
+
+const parseForm = (req) =>
+  new Promise((resolve, reject) => {
+    new formidable.IncomingForm().parse(req, (error, fields, files) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({ fields, files });
+      }
+    });
+  });
 
 const imageRouter = async (req, res) => {
   switch (req.method) {
-    case "GET":
-      if (req.url == "/api/photos") {
-        res.writeHead(200, { "Content-Type": "text/plain;charset=utf-8" });
+    case "GET": {
+      if (req.url === "/api/photos") {
+        const photos = await JsonController.getPhotos();
+        res.writeHead(200, { "Content-Type": "application/json;charset=utf-8" });
+        res.end(JSON.stringify({ status: "200", data: photos }));
+        return;
+      }
+
+      const tagsMatch = req.url.match(/\/api\/photos\/tags\/([0-9]+)/);
+      const photoMatch = req.url.match(/\/api\/photos\/([0-9]+)/);
+      const id = Number((tagsMatch || photoMatch)?.[1]);
+      if (tagsMatch || photoMatch) {
+        const photo = await JsonController.getPhoto(id);
+        if (!photo) {
+          res.writeHead(404, { "Content-Type": "application/json;charset=utf-8" });
+          res.end(
+            JSON.stringify({
+              status: "404",
+              message: "Nie ma zdjęcia z takim ID",
+            }),
+          );
+          return;
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json;charset=utf-8" });
         res.end(
-          JSON.stringify({ status: "200", data: JsonController.getPhotos() })
+          JSON.stringify(
+            tagsMatch
+              ? { status: "200", id, tags: photo.tags }
+              : { status: "200", data: photo },
+          ),
         );
-        break;
-      } else if (req.url.match(/\/api\/photos\/([0-9]+)/)) {
-        const idToFind = parseInt(req.url.match(/\/api\/photos\/([0-9]+)/)[1]);
-        const photoById = JsonController.getPhotos().find(
-          (obj) => obj.id === idToFind
-        );
-        if (photoById) {
-          res.writeHead(200, { "Content-Type": "text/plain;charset=utf-8" });
-          res.end(JSON.stringify({ status: "200", data: photoById }));
-        } else {
-          ("nie ma");
-          res.writeHead(404, { "Content-Type": "text/plain;charset=utf-8" });
-          res.end(
-            JSON.stringify({
-              status: "404",
-              message: "Nie ma zdjęcia z takim ID",
-            })
-          );
-        }
-
-        break;
-      } else if (req.url.match(/\/api\/photos\/tags\/([0-9]+)/)) {
-        const idToFind = parseInt(
-          req.url.match(/\/api\/photos\/tags\/([0-9]+)/)[1]
-        );
-        const photoById = JsonController.getPhotos().find(
-          (obj) => obj.id === idToFind
-        );
-        if (photoById) {
-          res.writeHead(200, { "Content-Type": "text/plain;charset=utf-8" });
-          res.end(
-            JSON.stringify({
-              status: "200",
-              id: idToFind,
-              tags: photoById.tags,
-            })
-          );
-        } else {
-          ("nie ma");
-          res.writeHead(404, { "Content-Type": "text/plain;charset=utf-8" });
-          res.end(
-            JSON.stringify({
-              status: "404",
-              message: "Nie ma zdjęcia z takim ID",
-            })
-          );
-        }
-
-        break;
       }
-    case "POST":
-      if (
-        req.url.match(
-          /\/api\/photos\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
-        )
-      ) {
-        const jwt = req.url.match(
-          /\/api\/photos\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/
-        )[1];
-        let email = verifyToken(jwt).email;
-        const form = new formidable.IncomingForm();
-        form.parse(req, function (err, fields, files) {
-          let oldPath = files.file.path;
-          let newPath =
-            path.join(__dirname, "uploads", email) + "/" + files.file.name;
-          let rawData = fs.readFileSync(files.file.path);
+      return;
+    }
 
-          fs.copyFile(oldPath, newPath, function (err) {
-            if (err) {
-              console.log(err);
-            } else {
-              res.writeHead(200, {
-                "Content-Type": "text/plain;charset=utf-8",
-              });
-              res.end(
-                JSON.stringify({
-                  status: "200",
-                  message: "Plik przesłany pomyślnie",
-                })
-              );
-              let tags = JSON.parse(fields.tags || "[]");
-              JsonController.add(
-                email,
-                files.file.name,
-                newPath,
-                tags,
-                fields.description
-              );
-            }
-          });
-        });
-        break;
+    case "POST": {
+      const tokenMatch = req.url.match(
+        /\/api\/photos\/(eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_.+/]*)/,
+      );
+      if (!tokenMatch) {
+        return;
       }
-    case "DELETE":
-      if (req.url.match(/\/api\/photos\/([0-9]+)/)) {
-        const idToDelete = parseInt(
-          req.url.match(/\/api\/photos\/([0-9]+)/)[1]
-        );
-        const photoToDelete = JsonController.getPhotos().find(
-          (obj) => obj.id === idToDelete
-        );
 
-        if (photoToDelete) {
-          fs.unlink(path.join(photoToDelete.url), (err) => {
-            if (err) throw err;
-          });
-          JsonController.deletePhoto(idToDelete);
-          res.writeHead(200, {
-            "Content-Type": "text/plain;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              status: "200",
-              message: `photo z id ${idToDelete} zostało usunięte`,
-            })
-          );
-        } else {
-          res.writeHead(404, {
-            "Content-Type": "text/plain;charset=utf-8",
-          });
-          res.end(
-            JSON.stringify({
-              status: "404",
-              message: `photo z id ${idToDelete} nie zostało znalezione`,
-            })
-          );
+      const tokenData = verifyToken(tokenMatch[1]);
+      if (tokenData === "expired") {
+        res.writeHead(401, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid or expired token" }));
+        return;
+      }
+
+      const { fields, files } = await parseForm(req);
+      const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
+      if (!uploadedFile) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "An image file is required" }));
+        return;
+      }
+
+      const directory = path.join(uploadsDirectory, tokenData.email);
+      const filePath = path.join(directory, path.basename(uploadedFile.name));
+      await fs.mkdir(directory, { recursive: true });
+      await fs.copyFile(uploadedFile.path, filePath);
+
+      try {
+        await JsonController.add(
+          tokenData.email,
+          uploadedFile.name,
+          filePath,
+          JSON.parse(fields.tags || "[]"),
+          fields.description,
+        );
+      } catch (error) {
+        await fs.rm(filePath, { force: true });
+        throw error;
+      }
+
+      res.writeHead(200, { "Content-Type": "application/json;charset=utf-8" });
+      res.end(
+        JSON.stringify({
+          status: "200",
+          message: "Plik przesłany pomyślnie",
+        }),
+      );
+      return;
+    }
+
+    case "DELETE": {
+      const match = req.url.match(/\/api\/photos\/([0-9]+)/);
+      if (!match) {
+        return;
+      }
+      const id = Number(match[1]);
+      const photo = await JsonController.deletePhoto(id);
+      if (!photo) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            status: "404",
+            message: `photo z id ${id} nie zostało znalezione`,
+          }),
+        );
+        return;
+      }
+
+      try {
+        await fs.unlink(photo.url);
+      } catch (error) {
+        if (error.code !== "ENOENT") {
+          throw error;
         }
       }
-      break;
-    case "PATCH":
-      if (req.url.match(/\/api\/photos\/([0-9]+)/)) {
-        const idToEdit = parseInt(req.url.match(/\/api\/photos\/([0-9]+)/)[1]);
-        const photoToEdit = JsonController.getPhotos().find(
-          (obj) => obj.id === idToEdit
-        );
-        photoToEdit.history.push({
-          status: `zmienione ${photoToEdit.history.length} raz`,
+      res.writeHead(200, { "Content-Type": "application/json;charset=utf-8" });
+      res.end(
+        JSON.stringify({
+          status: "200",
+          message: `photo z id ${id} zostało usunięte`,
+        }),
+      );
+      return;
+    }
+
+    case "PATCH": {
+      const photoMatch = req.url.match(/\/api\/photos\/([0-9]+)/);
+      if (photoMatch) {
+        const id = Number(photoMatch[1]);
+        const photo = await JsonController.getPhoto(id);
+        if (!photo) {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: `Photo with id ${id} not found` }));
+          return;
+        }
+        photo.history.push({
+          status: `zmienione ${photo.history.length} raz`,
           timestamp: Date.now(),
         });
-        res.writeHead(200, {
-          "Content-Type": "text/plain;charset=utf-8",
-        });
+        await JsonController.editPhoto(id, { history: photo.history });
+        res.writeHead(200, { "Content-Type": "application/json;charset=utf-8" });
         res.end(
           JSON.stringify({
             status: "200",
-            message: `photo z id ${idToEdit} zostało edytowane`,
-          })
+            message: `photo z id ${id} zostało edytowane`,
+          }),
         );
-      } else if (req.url.match(/\/api\/photos\/tags\/([0-9]+)/)) {
-        const idToEdit = parseInt(
-          req.url.match(/\/api\/photos\/tags\/([0-9]+)/)[1]
-        );
-        let data = await getRequestData(req);
-        data = JSON.parse(data);
-        const photoToEdit = JsonController.getPhotos().find(
-          (obj) => obj.id === idToEdit
-        );
-        let stat, msg;
-        if (photoToEdit && !photoToEdit.tags.some((a) => a.name == data.name)) {
-          photoToEdit.history.push({
-            status: `zmienione ${photoToEdit.history.length} raz`,
-            timestamp: Date.now(),
-          });
-          photoToEdit.tags.push(data);
-          stat = 200;
-          msg = `dodano tag dla zdjęcia z id ${idToEdit}`;
-        } else {
-          stat = 200;
-          msg = `zdjęcie juz ma ten tag`;
-        }
-
-        res.writeHead(stat, {
-          "Content-Type": "text/plain;charset=utf-8",
-        });
-        res.end(
-          JSON.stringify({
-            status: stat,
-            message: msg,
-          })
-        );
-      } else if (req.url.match(/\/api\/photos\/tags\/mass\/([0-9]+)/)) {
-        const idToEdit = parseInt(
-          req.url.match(/\/api\/photos\/tags\/mass\/([0-9]+)/)[1]
-        );
-        let data = await getRequestData(req);
-        data = JSON.parse(data);
-        const photoToEdit = JsonController.getPhotos().find(
-          (obj) => obj.id === idToEdit
-        );
-        let stat = 200;
-        let msg = "";
-        if (photoToEdit) {
-          data.array.forEach((tag) => {
-            if (!photoToEdit.tags.some((a) => a.name == tag.name)) {
-              photoToEdit.tags.push(tag);
-              msg += `dodano tag "${tag.name}" dla zdjęcia z id ${idToEdit}\n`;
-            } else {
-              msg += `zdjęcie z id ${idToEdit} już ma tag "${tag.name}"\n`;
-            }
-          });
-          photoToEdit.history.push({
-            status: `zmienione ${photoToEdit.history.length} raz`,
-            timestamp: Date.now(),
-          });
-        } else {
-          stat = 404;
-          msg = `Nie znaleziono zdjęcia z id ${idToEdit}`;
-        }
-
-        res.writeHead(stat, {
-          "Content-Type": "text/plain;charset=utf-8",
-        });
-        res.end(
-          JSON.stringify({
-            status: stat,
-            message: msg,
-          })
-        );
+        return;
       }
+
+      const tagMatch = req.url.match(/\/api\/photos\/tags\/([0-9]+)/);
+      const massTagMatch = req.url.match(
+        /\/api\/photos\/tags\/mass\/([0-9]+)/,
+      );
+      if (!tagMatch && !massTagMatch) {
+        return;
+      }
+
+      const id = Number((massTagMatch || tagMatch)[1]);
+      const data = JSON.parse(await getRequestData(req));
+      const photo = await JsonController.getPhoto(id);
+      let status = 200;
+      let message = "";
+
+      if (massTagMatch) {
+        if (photo) {
+          for (const tag of data.array || []) {
+            if (!photo.tags.some((item) => item.name === tag.name)) {
+              photo.tags.push(tag);
+              message += `dodano tag "${tag.name}" dla zdjęcia z id ${id}\n`;
+            } else {
+              message += `zdjęcie z id ${id} już ma tag "${tag.name}"\n`;
+            }
+          }
+          photo.history.push({
+            status: `zmienione ${photo.history.length} raz`,
+            timestamp: Date.now(),
+          });
+          await JsonController.editPhoto(id, {
+            tags: photo.tags,
+            history: photo.history,
+          });
+        } else {
+          status = 404;
+          message = `Nie znaleziono zdjęcia z id ${id}`;
+        }
+      } else if (photo && !photo.tags.some((item) => item.name === data.name)) {
+        photo.history.push({
+          status: `zmienione ${photo.history.length} raz`,
+          timestamp: Date.now(),
+        });
+        photo.tags.push(data);
+        await JsonController.editPhoto(id, {
+          tags: photo.tags,
+          history: photo.history,
+        });
+        message = `dodano tag dla zdjęcia z id ${id}`;
+      } else {
+        message = "zdjęcie juz ma ten tag";
+      }
+
+      res.writeHead(status, { "Content-Type": "application/json;charset=utf-8" });
+      res.end(JSON.stringify({ status, message }));
+      return;
+    }
   }
 };
 

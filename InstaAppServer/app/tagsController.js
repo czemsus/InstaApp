@@ -1,4 +1,4 @@
-import { photos, tags, tagsObjects } from "./Model.js";
+import { tags, tagsObjects } from "./Model.js";
 export default class TagsController {
     constructor() {
         this.tags = tagsObjects
