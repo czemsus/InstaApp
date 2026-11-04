@@ -3,36 +3,51 @@
     <Navbar />
     <div class="profile-container">
       <div v-if="user?.user" class="user-data">
-        <div class="profile-picture">
-          <img
-            class="profile-image"
-            :src="profileImage"
-            style="aspect-ratio: 1"
-          />
-        </div>
-        <div class="user-info">
-          <div class="user-mail">
-            {{ email }}
-            <RouterLink v-if="isOwnProfile" to="/edit" class="edit-profile">
-              Edytuj profil
-            </RouterLink>
+        <div class="profile-header">
+          <div class="profile-picture">
+            <img
+              class="profile-image"
+              :src="profileImage"
+              style="aspect-ratio: 1"
+            />
           </div>
-          <div class="user-name">
-            {{ user.user.name }} {{ user.user.lastname }}
+          <div class="user-info">
+            <div class="user-mail">
+              {{ email }}
+              <RouterLink v-if="isOwnProfile" to="/edit" class="edit-profile">
+                Edytuj profil
+              </RouterLink>
+            </div>
+            <div class="user-name">
+              {{ user.user.name }} {{ user.user.lastname }}
+            </div>
           </div>
         </div>
 
         <div class="user-bio">{{ user.user.bio }}</div>
       </div>
       <div v-if="user?.user" class="user-photos">
-        <div class="photo" v-for="photo in photos.photos">
-          <img
-            :src="`${apiBaseUrl}/api/getimage/${photo.id}`"
-            alt="zdjęcie"
-            style="aspect-ratio: 1"
-          />
-        </div>
+        <PhotoComponent
+          v-for="photo in userPhotos"
+          :key="photo.id"
+          class="photo"
+          :id="photo.id"
+          role="button"
+          tabindex="0"
+          :aria-label="`Pokaż szczegóły zdjęcia ${photo.desc || ''}`"
+          @click="openPhoto(photo.id)"
+          @keydown.enter="openPhoto(photo.id)"
+          @keydown.space.prevent="openPhoto(photo.id)"
+        />
       </div>
+      <PhotoDetails
+        v-if="selectedPhoto"
+        :id="selectedPhoto.id"
+        :desc="selectedPhoto.desc"
+        :tagi="selectedPhoto.tags"
+        :editable="isOwnProfile"
+        @close="selectedPhotoId = null"
+      />
     </div>
   </div>
 </template>
@@ -41,6 +56,7 @@
 import Navbar from "@/components/Navbar.vue";
 import axios from "axios";
 import PhotoComponent from "@/components/PhotoComponent.vue";
+import PhotoDetails from "@/components/PhotoDetails.vue";
 import { API_BASE_URL } from "@/api/api";
 export default {
   data() {
@@ -49,6 +65,7 @@ export default {
       user: null,
       profileImage: null,
       apiBaseUrl: API_BASE_URL,
+      selectedPhotoId: null,
     };
   },
   computed: {
@@ -62,6 +79,12 @@ export default {
     photos() {
       return this.$store.getters.GET_USER_PHOTOS;
     },
+    userPhotos() {
+      return Array.isArray(this.photos) ? this.photos : this.photos?.photos || [];
+    },
+    selectedPhoto() {
+      return this.userPhotos.find((photo) => photo.id === this.selectedPhotoId);
+    },
   },
   watch: {
     "$route.params.email": {
@@ -72,6 +95,9 @@ export default {
     },
   },
   methods: {
+    openPhoto(id) {
+      this.selectedPhotoId = id;
+    },
     async fetchProfileImage(email) {
       try {
         const response = await axios.get(
@@ -97,6 +123,7 @@ export default {
       this.email = email;
       this.user = null;
       this.profileImage = null;
+      this.selectedPhotoId = null;
 
       await this.$store.dispatch("GET_SOMEONES_DATA", email);
       await this.$store.dispatch("GET_SOMEONES_PHOTOS", email);
@@ -108,7 +135,7 @@ export default {
       await this.fetchProfileImage(email);
     },
   },
-  components: { Navbar, PhotoComponent },
+  components: { Navbar, PhotoComponent, PhotoDetails },
 };
 </script>
 
@@ -151,9 +178,16 @@ export default {
 
 .user-data {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 20px;
+  align-items: flex-start;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: row;
   align-items: center;
+  gap: 20px;
 }
 
 .user-info {
@@ -176,6 +210,9 @@ export default {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
 }
 
 .photo img {

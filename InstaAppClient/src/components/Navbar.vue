@@ -26,7 +26,7 @@
       <p @click="toggleForm">
         <font-awesome-icon :icon="['fas', 'plus']" /> Utwórz
       </p>
-      <RouterLink to="/profile"
+      <RouterLink :to="profileLink"
         ><font-awesome-icon :icon="['far', 'compass']" /> Profil</RouterLink
       >
     </div>
@@ -40,6 +40,14 @@ export default {
     return {
       isVisible: false,
     };
+  },
+  computed: {
+    profileLink() {
+      const email = this.$store.getters.GET_EMAIL;
+      return email
+        ? { name: "user", params: { email } }
+        : { name: "profile" };
+    },
   },
   methods: {
     toggleForm() {

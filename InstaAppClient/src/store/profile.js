@@ -110,7 +110,7 @@ const profile = {
       try {
         const data = await getUserPhotos(mail);
         if (data) {
-          commit("SET_USER_PHOTOS", data);
+          commit("SET_USER_PHOTOS", data.photos || []);
         }
       } catch (err) {
         return false;

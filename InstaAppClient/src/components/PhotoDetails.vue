@@ -5,21 +5,21 @@
         <div class="thumbnail">
           <img :src="imageUrl" alt="zdjęcie" />
         </div>
-        <div class="description-box" v-show="selected">
+        <div class="description-box">
+          <template v-if="editable">
           <label for="name">Opis</label>
           <textarea
-            MaxLength="106"
+            maxlength="106"
             v-model="description"
             placeholder="Dodaj opis zdjęcia"
             class="description-input"
             name="desc"
-            value="desc"
           />
-          <span :class="{ red: desc.length === 106 }">
-            {{ desc.length }}/106
+          <span :class="{ red: description.length === 106 }">
+            {{ description.length }}/106
           </span>
           <label for="tags">Tagi</label>
-          <div class="tags-box" v-show="selected">
+          <div class="tags-box">
             <input
               type="text"
               class="tags-input"
@@ -46,6 +46,19 @@
           <div class="filters">
             <FiltersComponent :id="this.id" />
           </div>
+          </template>
+          <template v-else>
+            <h2>Szczegóły zdjęcia</h2>
+            <p class="read-only-description">{{ desc || "Brak opisu zdjęcia." }}</p>
+            <div v-if="tagi?.length" class="read-only-tags">
+              <span v-for="(tag, index) in tagi" :key="`${tag}-${index}`">
+                #{{ String(tag).replace(/^#/, "") }}
+              </span>
+            </div>
+            <button class="close-button" type="button" @click="$emit('close')">
+              Zamknij
+            </button>
+          </template>
         </div>
       </div>
     </div>
@@ -72,7 +85,12 @@ export default {
       msg: "",
     };
   },
-  props: ["id", "tagi", "desc"],
+  props: {
+    id: { type: [Number, String], required: true },
+    tagi: { type: Array, default: () => [] },
+    desc: { type: String, default: "" },
+    editable: { type: Boolean, default: true },
+  },
   computed: {
     imageUrl() {
       return `${this.apiBaseUrl}/api/getimage/${this.id}?v=${this.$store.getters.PHOTO_REVISION}`;
