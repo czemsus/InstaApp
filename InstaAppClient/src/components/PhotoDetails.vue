@@ -39,10 +39,16 @@
             <span id="listLen" :class="{ red: tagsList.length === 8 }"
               >{{ tagsList.length }}/8</span
             >
-            <button class="save-button" @click="modifyImageData()">
-              Zapisz zmiany
+            <button
+              class="save-button"
+              type="button"
+              :disabled="isSaving"
+              @click="modifyImageData()"
+            >
+              {{ isSaving ? "Zapisywanie..." : "Zapisz zmiany" }}
             </button>
           </div>
+          <p v-if="saveError" class="save-error" role="alert">{{ saveError }}</p>
           <div class="filters">
             <FiltersComponent :id="this.id" />
           </div>
@@ -82,6 +88,8 @@ export default {
       newTag: "",
       tagsList: [],
       msg: "",
+      isSaving: false,
+      saveError: "",
     };
   },
   props: {
@@ -89,6 +97,20 @@ export default {
     tagi: { type: Array, default: () => [] },
     desc: { type: String, default: "" },
     editable: { type: Boolean, default: true },
+  },
+  watch: {
+    desc: {
+      immediate: true,
+      handler(value) {
+        this.description = value || "";
+      },
+    },
+    tagi: {
+      immediate: true,
+      handler(value) {
+        this.tagsList = [...value];
+      },
+    },
   },
   computed: {
     imageUrl() {
@@ -118,19 +140,28 @@ export default {
       );
     },
     async modifyImageData() {
-      const result = await this.$store.dispatch("MODIFY_IMAGE_DATA", {
-        tags: this.tagsList,
-        desc: this.description,
-        id: this.id,
-      });
-      if (result !== false) {
+      if (this.isSaving) {
+        return;
+      }
+
+      this.isSaving = true;
+      this.saveError = "";
+      try {
+        const result = await this.$store.dispatch("MODIFY_IMAGE_DATA", {
+          tags: this.tagsList,
+          desc: this.description,
+          id: this.id,
+        });
+        if (result === false) {
+          this.saveError =
+            "Nie udało się zapisać zmian. Sprawdź połączenie z serwerem i spróbuj ponownie.";
+          return;
+        }
         this.$emit("close");
+      } finally {
+        this.isSaving = false;
       }
     },
-  },
-  created() {
-    this.tagsList = this.tagi;
-    this.description = this.desc;
   },
   components: {
     TagElement,
@@ -282,6 +313,12 @@ span[id="listLen"] {
   padding: 10px 6px;
   width: 120px;
   border-radius: 14px;
+}
+
+.save-error {
+  margin: 8px 0;
+  color: #c62828;
+  font-size: 13px;
 }
 
 .filters {

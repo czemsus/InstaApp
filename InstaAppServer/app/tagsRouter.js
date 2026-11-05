@@ -105,8 +105,21 @@ const tagsRouter = async (req, res) => {
 
           const updatedPhoto = await JsonController.editPhoto(idToEdit || data.id, {
             tags: data.tags,
+            desc: data.description ?? data.desc,
             history: data.history,
           });
+
+          if (!updatedPhoto) {
+            res.writeHead(404, {
+              "Content-Type": "application/json;charset=utf-8",
+            });
+            return res.end(
+              JSON.stringify({
+                status: "404",
+                message: `Photo with ID ${idToEdit} not found`,
+              }),
+            );
+          }
 
           res.writeHead(200, {
             "Content-Type": "application/json;charset=utf-8",

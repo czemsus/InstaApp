@@ -37,9 +37,14 @@ const files = {
         let object = {
           tags: tags,
           desc: desc,
+          description: desc,
           id: id,
         };
         const data = await editPhoto(object);
+        if (!data?.photo || (data.photo.desc ?? "") !== desc) {
+          throw new Error("The server did not save the updated photo description");
+        }
+        commit("UPDATE_PHOTO", data.photo);
         await dispatch("PHOTO_CHANGED");
         return data;
       } catch (err) {

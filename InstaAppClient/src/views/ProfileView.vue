@@ -40,7 +40,6 @@ export default {
   data() {
     return {
       user: this.$store.getters.GET_USER_DATA,
-      photos: this.$store.getters.GET_USER_PHOTOS,
       clicked: null,
     };
   },
@@ -51,11 +50,10 @@ export default {
       },
       immediate: true,
     },
-    "$store.getters.GET_USER_PHOTOS": {
-      handler(newValue) {
-        this.photos = newValue;
-      },
-      immediate: true,
+  },
+  computed: {
+    photos() {
+      return this.$store.getters.GET_USER_PHOTOS;
     },
   },
   created() {
