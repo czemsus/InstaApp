@@ -48,7 +48,6 @@
           </div>
           </template>
           <template v-else>
-            <h2>Szczegóły zdjęcia</h2>
             <p class="read-only-description">{{ desc || "Brak opisu zdjęcia." }}</p>
             <div v-if="tagi?.length" class="read-only-tags">
               <span v-for="(tag, index) in tagi" :key="`${tag}-${index}`">
@@ -214,6 +213,7 @@ button {
 }
 
 .description-box {
+  display: flex;
   position: absolute;
   right: -100px;
   top: 0px;
@@ -221,6 +221,8 @@ button {
   height: 680px;
   background: white;
   padding: 20px;
+  justify-content: flex-start;
+  flex-direction: column;
 }
 
 .tags-box {
@@ -292,5 +294,11 @@ span[id="listLen"] {
   padding: 20px;
   border-radius: 0px 8px 8px 0px;
   border-left: 1px solid lightgrey;
+}
+
+.close-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 }
 </style>
