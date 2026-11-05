@@ -93,7 +93,9 @@ export default class JsonController {
     const updated = {
       ...photo,
       ...(updates.tags !== undefined ? { tags: updates.tags } : {}),
-      ...(updates.desc !== undefined ? { desc: updates.desc } : {}),
+      ...((updates.description ?? updates.desc) !== undefined
+        ? { desc: updates.description ?? updates.desc }
+        : {}),
       ...(updates.history !== undefined ? { history: updates.history } : {}),
       ...(updates.lastChange !== undefined
         ? { lastChange: updates.lastChange }

@@ -25,6 +25,11 @@ const profile = {
     SET_USER_PHOTOS(state, photos) {
       state.userPhotos = photos;
     },
+    UPDATE_PHOTO(state, photo) {
+      state.userPhotos = state.userPhotos.map((currentPhoto) =>
+        currentPhoto.id === photo.id ? photo : currentPhoto,
+      );
+    },
     INCREMENT_PHOTO_REVISION(state) {
       state.photoRevision += 1;
     },
