@@ -3,7 +3,7 @@
     <div class="main">
       <div class="photo-container">
         <div class="thumbnail">
-          <img :src="imageUrl" alt="zdjęcie" />
+          <img class="photo-image" :src="imageUrl" alt="zdjęcie" />
         </div>
         <div class="description-box">
           <template v-if="editable">
@@ -20,25 +20,35 @@
           </span>
           <label for="tags">Tagi</label>
           <div class="tags-box">
-            <input
-              type="text"
-              class="tags-input"
-              maxlength="16"
-              v-model="newTag"
-              name="tags"
-            />
-            <span class="add" @click="addToTags(newTag)">+</span>
-            <div class="tagsList">
+            <div class="tag-input-row">
+              <input
+                type="text"
+                class="tags-input"
+                maxlength="16"
+                v-model="newTag"
+                name="tags"
+              />
+              <button
+                class="add"
+                type="button"
+                aria-label="Dodaj tag"
+                @click="addToTags(newTag)"
+              >
+                +
+              </button>
+            </div>
+            <div v-if="tagsList.length" class="tagsList">
               <TagElement
                 v-for="(tag, index) in tagsList"
+                :key="`${tag}-${index}`"
                 :value="tag"
                 @delete="deleteItem(index)"
               />
             </div>
-            <div class="msg" style="color: red">{{ msg }}</div>
-            <span id="listLen" :class="{ red: tagsList.length === 8 }"
-              >{{ tagsList.length }}/8</span
-            >
+            <p v-if="msg" class="msg" role="alert">{{ msg }}</p>
+            <span class="list-length" :class="{ red: tagsList.length === 8 }">
+              {{ tagsList.length }}/8 tagów
+            </span>
             <button
               class="save-button"
               type="button"
@@ -60,9 +70,6 @@
                 #{{ String(tag).replace(/^#/, "") }}
               </span>
             </div>
-            <button class="close-button" type="button" @click="$emit('close')">
-              Zamknij
-            </button>
           </template>
           <section class="comments-section" aria-labelledby="comments-heading">
             <h2 id="comments-heading">Komentarze</h2>
@@ -82,6 +89,14 @@
               </li>
             </ul>
           </section>
+          <button
+            v-if="!editable"
+            class="close-button"
+            type="button"
+            @click="$emit('close')"
+          >
+            Zamknij
+          </button>
         </div>
       </div>
     </div>
@@ -223,93 +238,183 @@ export default {
 <style scoped>
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-}
-
-img {
-  position: absolute;
-  top: 0;
-  left: -100px;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px 0px 0px 8px;
-  z-index: 3;
-}
-
-.photo-container {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  inset: 0;
   z-index: 20;
-  position: relative;
-  width: 680px;
-  height: 680px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 70%);
 }
 
 .main {
   display: flex;
+  width: min(1100px, 100%);
+  max-height: 100%;
 }
 
-button {
-  background: none;
-  border: none;
-  padding: 0px;
-  color: #3498db;
-  margin: 0;
-  position: absolute;
-  right: 20px;
-  cursor: pointer;
-  width: 100px;
+.photo-container {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  gap: 20px;
+  width: 100%;
+  height: min(760px, calc(100dvh - 32px));
+  padding: 20px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 28%);
 }
 
-.anuluj {
-  position: absolute;
-  color: red;
-  left: 20px;
+.thumbnail {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111;
+}
+
+.photo-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.description-box {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 8px 4px 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.description-box label {
+  font-size: 13px;
+  font-weight: 650;
 }
 
 .description-input {
   width: 100%;
-  padding: 8px;
-  margin-top: 20px;
-  border-radius: 4px;
+  min-height: 100px;
+  padding: 10px;
+  resize: vertical;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.tags-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tag-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tags-input {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline-color: #3498db;
+}
+
+.add {
+  display: grid;
+  width: 38px;
+  min-width: 38px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #3498db;
+  color: white;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.add:hover {
+  background: #1888d0;
 }
 
 .tagsList {
-  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.description-box {
+.list-length {
+  align-self: flex-end;
+  color: #666;
+  font-size: 12px;
+}
+
+.red,
+.msg,
+.save-error,
+.comments-error {
+  color: #c62828;
+}
+
+.msg,
+.save-error,
+.read-only-description {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.save-button,
+.close-button {
+  position: static;
+  width: 100%;
+  min-height: 40px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #3498db;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.close-button {
+  margin-top: auto;
+}
+
+.save-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.filters {
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.read-only-tags {
   display: flex;
-  position: absolute;
-  right: -100px;
-  top: 0px;
-  width: 200px;
-  height: 680px;
-  background: white;
-  padding: 20px;
-  justify-content: flex-start;
-  flex-direction: column;
-  overflow-y: auto;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: #255a9b;
+  font-size: 13px;
 }
 
 .comments-section {
-  min-height: 0;
-  margin-top: 16px;
+  min-width: 0;
+  margin-top: 4px;
   padding-top: 12px;
   border-top: 1px solid #e6e6e6;
   font-size: 13px;
@@ -322,9 +427,9 @@ button {
 
 .comments-list {
   display: flex;
+  max-height: 220px;
   flex-direction: column;
   gap: 10px;
-  max-height: 190px;
   margin: 0;
   padding: 0;
   overflow-y: auto;
@@ -349,89 +454,37 @@ button {
 
 .comments-error {
   margin: 0;
-  color: #c62828;
 }
 
-.tags-box {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-textarea {
-  border: none;
-  height: 150px;
-}
+@media (max-width: 760px) {
+  .overlay {
+    align-items: flex-start;
+    padding: 12px;
+    overflow-y: auto;
+  }
 
-.msg {
-  font-size: 70%;
-  position: absolute;
-  top: 0;
-}
+  .main {
+    max-height: none;
+  }
 
-input {
-  outline: none;
-  background-color: white;
-  margin-top: 20px;
-  border-radius: 0px 18px 18px 0px;
-  overflow: hidden;
-  width: 170px;
-}
+  .photo-container {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    height: auto;
+    max-height: none;
+    padding: 14px;
+    overflow: visible;
+  }
 
-.add {
-  position: absolute;
-  border: 1px solid lightgray;
-  font-size: 180%;
-  padding: 0px 8px;
-  border-radius: 50%;
-  right: -10px;
-  top: 21px;
-  cursor: pointer;
-  background-color: #3498db;
-  color: white;
-}
+  .thumbnail {
+    height: min(55vh, 480px);
+    min-height: 220px;
+  }
 
-.add:hover {
-  background-color: #099dff;
-}
-
-span[id="listLen"] {
-  position: absolute;
-  right: 0px;
-  top: 370px;
-}
-
-.save-button {
-  position: absolute;
-  bottom: -70px;
-  background-color: #099dff;
-  color: white;
-  padding: 10px 6px;
-  width: 120px;
-  border-radius: 14px;
-}
-
-.save-error {
-  margin: 8px 0;
-  color: #c62828;
-  font-size: 13px;
-}
-
-.filters {
-  position: absolute;
-  right: -300px;
-  top: 0px;
-  width: 300px;
-  height: 680px;
-  background: white;
-  padding: 20px;
-  border-radius: 0px 8px 8px 0px;
-  border-left: 1px solid lightgrey;
-}
-
-.close-button {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
+  .description-box {
+    max-height: none;
+    padding: 0 2px 2px;
+    overflow: visible;
+  }
 }
 </style>

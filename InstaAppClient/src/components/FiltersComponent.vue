@@ -174,18 +174,46 @@ export default {
 <style scoped>
 .main {
   display: flex;
+  min-width: 0;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+}
+
+.filters-forms,
+.tint,
+.crop,
+.resize,
+.rotate,
+.reformat {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+
+input[type="range"],
+input[type="text"],
+select {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+input[type="range"] {
+  width: 100%;
 }
 
 select {
+  width: 100%;
+  background: white;
   padding: 10px 5px;
   border: 1px solid lightgray;
   border-radius: 10px;
-  text-align: center;
 }
 .reformat input[type="text"] {
-  background-color: none;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid lightgray;
+  border-radius: 8px;
 }
 
 button {
