@@ -5,7 +5,6 @@ import JsonController from "./jsonController.js";
 import getRequestData from "./getRequestData.js";
 import { verifyToken } from "./jwt.js";
 import { fileURLToPath } from "url";
-import CommentsController from "./commentsController.js";
 
 const uploadsDirectory = fileURLToPath(new URL("../uploads/", import.meta.url));
 
@@ -40,44 +39,6 @@ const imageRouter = async (req, res) => {
           "Content-Type": "application/json;charset=utf-8",
         });
         res.end(JSON.stringify({ status: "200", data: photos }));
-        return;
-      }
-
-      const requestPath = new URL(req.url, "http://localhost").pathname;
-      const commentsMatch = requestPath.match(
-        /^\/api\/photos\/([0-9]+)\/comments\/?$/,
-      );
-      if (commentsMatch) {
-        const photoId = Number(commentsMatch[1]);
-        if (!Number.isSafeInteger(photoId) || photoId <= 0) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Invalid photoId" }));
-          return;
-        }
-
-        const authorization = req.headers.authorization;
-        const token = authorization?.startsWith("Bearer ")
-          ? authorization.slice(7)
-          : null;
-        const tokenData = token ? verifyToken(token) : null;
-
-        if (token && tokenData === "expired") {
-          res.writeHead(401, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Invalid or expired token" }));
-          return;
-        }
-
-        try {
-          const comments = await CommentsController.getComments(photoId);
-          res.writeHead(200, {
-            "Content-Type": "application/json;charset=utf-8",
-          });
-          res.end(JSON.stringify({ status: "200", data: comments }));
-        } catch (error) {
-          console.error("Failed to fetch comments:", error);
-          res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Failed to fetch comments" }));
-        }
         return;
       }
 

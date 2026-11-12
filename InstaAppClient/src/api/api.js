@@ -98,6 +98,15 @@ const getPhotoComments = async (photoId) => {
   return await get(`${API_BASE_URL}/api/photos/${photoId}/comments`, token);
 };
 
+const addPhotoComment = async (photoId, content) => {
+  const token = localStorage.getItem("userToken");
+  return await post(
+    `${API_BASE_URL}/api/photos/${photoId}/comments`,
+    { content },
+    token,
+  );
+};
+
 const setPhotoLike = async (id, liked) => {
   const token = localStorage.getItem("userToken");
   return await patch(`${API_BASE_URL}/api/photos/${id}/like`, { liked }, token);
@@ -137,6 +146,7 @@ export {
   sendProfilePicture,
   getAllPhotos,
   getPhotoComments,
+  addPhotoComment,
   setPhotoLike,
   getUserData,
   getUserPhotos,

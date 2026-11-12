@@ -4,6 +4,7 @@ import tagsRouter from "./app/tagsRouter.js";
 import filtersRouter from "./app/filtersRouter.js";
 import usersRouter from "./app/usersRouter.js";
 import profileRouter from "./app/profileRouter.js";
+import commentsRouter from "./app/commentsRouter.js";
 import "dotenv/config";
 import { initializeDatabase } from "./app/database.js";
 
@@ -27,7 +28,13 @@ const server = createServer(async (req, res) => {
   try {
     const url = req.url;
 
-    if (url.includes("/api/photos")) {
+    if (
+      new URL(url, "http://localhost").pathname.match(
+        /^\/api\/photos\/[0-9]+\/comments\/?$/,
+      )
+    ) {
+      await commentsRouter(req, res);
+    } else if (url.includes("/api/photos")) {
       await imageRouter(req, res);
     } else if (url.includes("/api/tags")) {
       await tagsRouter(req, res);
@@ -37,6 +44,8 @@ const server = createServer(async (req, res) => {
       await usersRouter(req, res);
     } else if (url.includes("/api/profile") || url.includes("/api/logout")) {
       await profileRouter(req, res);
+    } else if (url.includes("/api/comments")) {
+      await commentsRouter(req, res);
     } else {
       res.writeHead(404, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "Endpoint not found" }));

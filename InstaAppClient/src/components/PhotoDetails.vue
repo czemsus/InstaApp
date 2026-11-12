@@ -7,64 +7,68 @@
         </div>
         <div class="description-box">
           <template v-if="editable">
-          <label for="name">Opis</label>
-          <textarea
-            maxlength="106"
-            v-model="description"
-            placeholder="Dodaj opis zdjęcia"
-            class="description-input"
-            name="desc"
-          />
-          <span :class="{ red: description.length === 106 }">
-            {{ description.length }}/106
-          </span>
-          <label for="tags">Tagi</label>
-          <div class="tags-box">
-            <div class="tag-input-row">
-              <input
-                type="text"
-                class="tags-input"
-                maxlength="16"
-                v-model="newTag"
-                name="tags"
-              />
+            <label for="name">Opis</label>
+            <textarea
+              maxlength="106"
+              v-model="description"
+              placeholder="Dodaj opis zdjęcia"
+              class="description-input"
+              name="desc"
+            />
+            <span :class="{ red: description.length === 106 }">
+              {{ description.length }}/106
+            </span>
+            <label for="tags">Tagi</label>
+            <div class="tags-box">
+              <div class="tag-input-row">
+                <input
+                  type="text"
+                  class="tags-input"
+                  maxlength="16"
+                  v-model="newTag"
+                  name="tags"
+                />
+                <button
+                  class="add"
+                  type="button"
+                  aria-label="Dodaj tag"
+                  @click="addToTags(newTag)"
+                >
+                  +
+                </button>
+              </div>
+              <div v-if="tagsList.length" class="tagsList">
+                <TagElement
+                  v-for="(tag, index) in tagsList"
+                  :key="`${tag}-${index}`"
+                  :value="tag"
+                  @delete="deleteItem(index)"
+                />
+              </div>
+              <p v-if="msg" class="msg" role="alert">{{ msg }}</p>
+              <span class="list-length" :class="{ red: tagsList.length === 8 }">
+                {{ tagsList.length }}/8 tagów
+              </span>
               <button
-                class="add"
+                class="save-button"
                 type="button"
-                aria-label="Dodaj tag"
-                @click="addToTags(newTag)"
+                :disabled="isSaving"
+                @click="modifyImageData()"
               >
-                +
+                {{ isSaving ? "Zapisywanie..." : "Zapisz zmiany" }}
               </button>
             </div>
-            <div v-if="tagsList.length" class="tagsList">
-              <TagElement
-                v-for="(tag, index) in tagsList"
-                :key="`${tag}-${index}`"
-                :value="tag"
-                @delete="deleteItem(index)"
-              />
+            <p v-if="saveError" class="save-error" role="alert">
+              {{ saveError }}
+            </p>
+            <div class="filters">
+              <FiltersComponent :id="this.id" />
             </div>
-            <p v-if="msg" class="msg" role="alert">{{ msg }}</p>
-            <span class="list-length" :class="{ red: tagsList.length === 8 }">
-              {{ tagsList.length }}/8 tagów
-            </span>
-            <button
-              class="save-button"
-              type="button"
-              :disabled="isSaving"
-              @click="modifyImageData()"
-            >
-              {{ isSaving ? "Zapisywanie..." : "Zapisz zmiany" }}
-            </button>
-          </div>
-          <p v-if="saveError" class="save-error" role="alert">{{ saveError }}</p>
-          <div class="filters">
-            <FiltersComponent :id="this.id" />
-          </div>
           </template>
           <template v-else>
-            <p class="read-only-description">{{ desc || "Brak opisu zdjęcia." }}</p>
+            <p class="read-only-description">
+              {{ desc || "Brak opisu zdjęcia." }}
+            </p>
             <div v-if="tagi?.length" class="read-only-tags">
               <span v-for="(tag, index) in tagi" :key="`${tag}-${index}`">
                 #{{ String(tag).replace(/^#/, "") }}
@@ -88,6 +92,26 @@
                 <p>{{ comment.content }}</p>
               </li>
             </ul>
+            <form class="comment-form" @submit.prevent="submitComment">
+              <textarea
+                id="new-comment"
+                v-model="newComment"
+                maxlength="1000"
+                rows="3"
+                placeholder="Napisz komentarz..."
+                :disabled="commentSubmitting"
+              />
+              <p v-if="commentError" class="comments-error" role="alert">
+                {{ commentError }}
+              </p>
+              <button
+                class="submit-comment-button"
+                type="submit"
+                :disabled="commentSubmitting || !newComment.trim()"
+              >
+                {{ commentSubmitting ? "Wysyłanie..." : "Opublikuj komentarz" }}
+              </button>
+            </form>
           </section>
           <button
             v-if="!editable"
@@ -106,7 +130,7 @@
 <script>
 import TagElement from "./TagElement.vue";
 import FiltersComponent from "./FiltersComponent.vue";
-import { API_BASE_URL, getPhotoComments } from "@/api/api";
+import { API_BASE_URL, addPhotoComment, getPhotoComments } from "@/api/api";
 export default {
   data() {
     return {
@@ -126,6 +150,9 @@ export default {
       comments: [],
       commentsLoading: false,
       commentsError: "",
+      newComment: "",
+      commentSubmitting: false,
+      commentError: "",
     };
   },
   props: {
@@ -138,6 +165,9 @@ export default {
     id: {
       immediate: true,
       handler() {
+        this.newComment = "";
+        this.commentError = "";
+        this.commentSubmitting = false;
         this.loadComments();
       },
     },
@@ -160,6 +190,42 @@ export default {
     },
   },
   methods: {
+    async submitComment() {
+      const content = this.newComment.trim();
+      if (!content || this.commentSubmitting) {
+        return;
+      }
+
+      const requestedPhotoId = this.id;
+      this.commentSubmitting = true;
+      this.commentError = "";
+      try {
+        const response = await addPhotoComment(requestedPhotoId, content);
+        if (String(this.id) !== String(requestedPhotoId)) {
+          return;
+        }
+
+        if (response.data) {
+          this.comments.push(response.data);
+          this.newComment = "";
+        } else {
+          throw new Error("The server did not return the created comment");
+        }
+      } catch (error) {
+        if (String(this.id) === String(requestedPhotoId)) {
+          this.commentError =
+            error.response?.status === 401
+              ? "Sesja wygasła. Zaloguj się ponownie, aby dodać komentarz."
+              : error.response?.data?.error ||
+                "Nie udało się dodać komentarza. Sprawdź połączenie i spróbuj ponownie.";
+          console.error("Error adding photo comment:", error);
+        }
+      } finally {
+        if (String(this.id) === String(requestedPhotoId)) {
+          this.commentSubmitting = false;
+        }
+      }
+    },
     async loadComments() {
       const requestedPhotoId = this.id;
       this.comments = [];
@@ -201,7 +267,7 @@ export default {
     },
     deleteItem(index) {
       this.tagsList = this.tagsList.filter(
-        (tag) => tag != this.tagsList[index]
+        (tag) => tag != this.tagsList[index],
       );
     },
     async modifyImageData() {
@@ -454,6 +520,49 @@ export default {
 
 .comments-error {
   margin: 0;
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  border: none;
+  padding: 0;
+}
+
+.comment-form label {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.comment-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  padding: 9px;
+  resize: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.submit-comment-button {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #3498db;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.submit-comment-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 @media (max-width: 760px) {
