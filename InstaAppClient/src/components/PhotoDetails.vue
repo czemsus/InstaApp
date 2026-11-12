@@ -64,6 +64,24 @@
               Zamknij
             </button>
           </template>
+          <section class="comments-section" aria-labelledby="comments-heading">
+            <h2 id="comments-heading">Komentarze</h2>
+            <p v-if="commentsLoading" class="comments-status" role="status">
+              Ładowanie komentarzy...
+            </p>
+            <p v-else-if="commentsError" class="comments-error" role="alert">
+              {{ commentsError }}
+            </p>
+            <p v-else-if="comments.length === 0" class="comments-status">
+              Brak komentarzy.
+            </p>
+            <ul v-else class="comments-list">
+              <li v-for="comment in comments" :key="comment.id">
+                <strong>{{ comment.userEmail }}</strong>
+                <p>{{ comment.content }}</p>
+              </li>
+            </ul>
+          </section>
         </div>
       </div>
     </div>
@@ -73,7 +91,7 @@
 <script>
 import TagElement from "./TagElement.vue";
 import FiltersComponent from "./FiltersComponent.vue";
-import { API_BASE_URL } from "@/api/api";
+import { API_BASE_URL, getPhotoComments } from "@/api/api";
 export default {
   data() {
     return {
@@ -90,6 +108,9 @@ export default {
       msg: "",
       isSaving: false,
       saveError: "",
+      comments: [],
+      commentsLoading: false,
+      commentsError: "",
     };
   },
   props: {
@@ -99,6 +120,12 @@ export default {
     editable: { type: Boolean, default: true },
   },
   watch: {
+    id: {
+      immediate: true,
+      handler() {
+        this.loadComments();
+      },
+    },
     desc: {
       immediate: true,
       handler(value) {
@@ -118,6 +145,29 @@ export default {
     },
   },
   methods: {
+    async loadComments() {
+      const requestedPhotoId = this.id;
+      this.comments = [];
+      this.commentsError = "";
+      this.commentsLoading = true;
+
+      try {
+        const response = await getPhotoComments(requestedPhotoId);
+        if (String(this.id) !== String(requestedPhotoId)) {
+          return;
+        }
+        this.comments = Array.isArray(response.data) ? response.data : [];
+      } catch (error) {
+        if (String(this.id) === String(requestedPhotoId)) {
+          this.commentsError = "Nie udało się załadować komentarzy.";
+          console.error("Error fetching photo comments:", error);
+        }
+      } finally {
+        if (String(this.id) === String(requestedPhotoId)) {
+          this.commentsLoading = false;
+        }
+      }
+    },
     closeForm(event) {
       if (event.target.classList.contains("overlay")) {
         this.$emit("close");
@@ -254,6 +304,52 @@ button {
   padding: 20px;
   justify-content: flex-start;
   flex-direction: column;
+  overflow-y: auto;
+}
+
+.comments-section {
+  min-height: 0;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #e6e6e6;
+  font-size: 13px;
+}
+
+.comments-section h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 190px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.comments-list li,
+.comments-list p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.comments-list strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.comments-status {
+  margin: 0;
+  color: #666;
+}
+
+.comments-error {
+  margin: 0;
+  color: #c62828;
 }
 
 .tags-box {

@@ -51,4 +51,14 @@ export const initializeDatabase = async () => {
       PRIMARY KEY (photo_id, user_email)
     )
   `);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id BIGSERIAL PRIMARY KEY,
+      photo_id BIGINT NOT NULL REFERENCES photos(id) ON DELETE CASCADE,
+      user_email TEXT NOT NULL REFERENCES users(mail) ON DELETE CASCADE,
+      content TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
 };

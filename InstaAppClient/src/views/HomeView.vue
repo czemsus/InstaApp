@@ -11,26 +11,47 @@
         :user="photo.album"
         :likes-count="photo.likesCount"
         :liked-by-user="photo.likedByUser"
+        @open="openPhoto"
       />
       <p v-if="loadError" class="load-error" role="alert">{{ loadError }}</p>
     </div>
+    <PhotoDetails
+      v-if="selectedPhoto"
+      :id="selectedPhoto.id"
+      :desc="selectedPhoto.desc"
+      :tagi="selectedPhoto.tags"
+      :editable="false"
+      @close="selectedPhotoId = null"
+    />
   </div>
 </template>
 
 <script>
 import Navbar from "@/components/Navbar.vue";
 import PhotoCard from "@/components/PhotoCard.vue";
+import PhotoDetails from "@/components/PhotoDetails.vue";
 
 export default {
-  components: { Navbar, PhotoCard },
+  components: { Navbar, PhotoCard, PhotoDetails },
   data() {
     return {
       loadError: "",
+      selectedPhotoId: null,
     };
   },
   computed: {
     photos() {
       return this.$store.getters.GET_LIST;
+    },
+    selectedPhoto() {
+      return this.photos.find(
+        (photo) => String(photo.id) === String(this.selectedPhotoId),
+      );
+    },
+  },
+  methods: {
+    openPhoto(id) {
+      this.selectedPhotoId = id;
     },
   },
   async created() {

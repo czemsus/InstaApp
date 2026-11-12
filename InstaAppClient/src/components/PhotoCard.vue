@@ -21,7 +21,15 @@
       <span class="post-menu" aria-hidden="true">•••</span>
     </header>
 
-    <div class="photo-frame">
+    <div
+      class="photo-frame"
+      role="button"
+      tabindex="0"
+      :aria-label="`Pokaż zdjęcie i komentarze użytkownika ${user}`"
+      @click="$emit('open', id)"
+      @keydown.enter="$emit('open', id)"
+      @keydown.space.prevent="$emit('open', id)"
+    >
       <img
         class="photo-image"
         :src="`${apiBaseUrl}/api/getimage/${id}`"
@@ -209,6 +217,7 @@ export default {
   aspect-ratio: 4 / 5;
   place-items: center;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .photo-image {
