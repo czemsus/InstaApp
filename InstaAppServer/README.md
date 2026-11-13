@@ -1,15 +1,15 @@
-# InstaApp
+# Serwer InstaApp
 
-## Server configuration
+Instrukcja konfiguracji bazy danych, zmiennych środowiskowych, instalacji
+zależności i uruchomienia całej aplikacji znajduje się w głównym
+[README](../README.md).
 
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/instaapp
-SECRET_KEY=replace-with-a-long-random-secret
-RESEND_API_KEY=your-resend-api-key
+W skrócie: utwórz plik `.env` w tym katalogu, ustaw `DATABASE_URL` oraz
+`SECRET_KEY`, a następnie uruchom:
+
+```powershell
+npm ci
+npm start
 ```
 
-Start the server from the repository root with:
-
-```sh
-npm --prefix InstaAppServer start
-```
+API domyślnie nasłuchuje na porcie `3000`.
