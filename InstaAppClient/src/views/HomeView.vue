@@ -20,6 +20,7 @@
       :id="selectedPhoto.id"
       :desc="selectedPhoto.desc"
       :tagi="selectedPhoto.tags"
+      :photo-owner="selectedPhoto.album"
       :editable="false"
       @close="selectedPhotoId = null"
     />

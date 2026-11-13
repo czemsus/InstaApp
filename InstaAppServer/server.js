@@ -30,7 +30,7 @@ const server = createServer(async (req, res) => {
 
     if (
       new URL(url, "http://localhost").pathname.match(
-        /^\/api\/photos\/[0-9]+\/comments\/?$/,
+        /^\/api\/photos\/[0-9]+\/comments(?:\/[0-9]+)?\/?$/,
       )
     ) {
       await commentsRouter(req, res);

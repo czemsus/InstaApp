@@ -51,6 +51,7 @@
         :id="selectedPhoto.id"
         :desc="selectedPhoto.desc"
         :tagi="selectedPhoto.tags"
+        :photo-owner="selectedPhoto.album"
         :editable="isOwnProfile"
         @close="selectedPhotoId = null"
       />

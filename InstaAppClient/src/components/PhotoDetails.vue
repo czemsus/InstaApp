@@ -90,8 +90,20 @@
               <li v-for="comment in comments" :key="comment.id">
                 <strong>{{ comment.userEmail }}</strong>
                 <p>{{ comment.content }}</p>
+                <button
+                  v-if="canDeleteComment(comment)"
+                  class="delete-comment-button"
+                  type="button"
+                  :disabled="commentDeletingId !== null"
+                  @click="deleteComment(comment)"
+                >
+                  {{ commentDeletingId === comment.id ? "Usuwanie..." : "Usuń" }}
+                </button>
               </li>
             </ul>
+            <p v-if="commentDeleteError" class="comments-error" role="alert">
+              {{ commentDeleteError }}
+            </p>
             <form class="comment-form" @submit.prevent="submitComment">
               <textarea
                 id="new-comment"
@@ -130,7 +142,12 @@
 <script>
 import TagElement from "./TagElement.vue";
 import FiltersComponent from "./FiltersComponent.vue";
-import { API_BASE_URL, addPhotoComment, getPhotoComments } from "@/api/api";
+import {
+  API_BASE_URL,
+  addPhotoComment,
+  deletePhotoComment,
+  getPhotoComments,
+} from "@/api/api";
 export default {
   data() {
     return {
@@ -153,6 +170,8 @@ export default {
       newComment: "",
       commentSubmitting: false,
       commentError: "",
+      commentDeletingId: null,
+      commentDeleteError: "",
     };
   },
   props: {
@@ -160,6 +179,7 @@ export default {
     tagi: { type: Array, default: () => [] },
     desc: { type: String, default: "" },
     editable: { type: Boolean, default: true },
+    photoOwner: { type: String, default: "" },
   },
   watch: {
     id: {
@@ -168,6 +188,8 @@ export default {
         this.newComment = "";
         this.commentError = "";
         this.commentSubmitting = false;
+        this.commentDeletingId = null;
+        this.commentDeleteError = "";
         this.loadComments();
       },
     },
@@ -190,6 +212,48 @@ export default {
     },
   },
   methods: {
+    canDeleteComment(comment) {
+      const currentEmail = this.$store.getters.GET_EMAIL;
+      return (
+        this.editable ||
+        (typeof currentEmail === "string" &&
+          (comment.userEmail.toLowerCase() === currentEmail.toLowerCase() ||
+            (this.photoOwner &&
+              this.photoOwner.toLowerCase() === currentEmail.toLowerCase())))
+      );
+    },
+    async deleteComment(comment) {
+      if (this.commentDeletingId !== null) {
+        return;
+      }
+
+      const requestedPhotoId = this.id;
+      this.commentDeletingId = comment.id;
+      this.commentDeleteError = "";
+      try {
+        await deletePhotoComment(requestedPhotoId, comment.id);
+        if (String(this.id) === String(requestedPhotoId)) {
+          this.comments = this.comments.filter(
+            (item) => item.id !== comment.id,
+          );
+        }
+      } catch (error) {
+        if (String(this.id) === String(requestedPhotoId)) {
+          this.commentDeleteError =
+            error.response?.status === 401
+              ? "Sesja wygasła. Zaloguj się ponownie, aby usunąć komentarz."
+              : error.response?.status === 403
+                ? "Możesz usuwać tylko własne komentarze lub komentarze do własnego zdjęcia."
+                : error.response?.data?.error ||
+                  "Nie udało się usunąć komentarza. Spróbuj ponownie.";
+          console.error("Error deleting photo comment:", error);
+        }
+      } finally {
+        if (String(this.id) === String(requestedPhotoId)) {
+          this.commentDeletingId = null;
+        }
+      }
+    },
     async submitComment() {
       const content = this.newComment.trim();
       if (!content || this.commentSubmitting) {
@@ -511,6 +575,22 @@ export default {
 .comments-list strong {
   display: block;
   margin-bottom: 3px;
+}
+
+.delete-comment-button {
+  margin-top: 5px;
+  padding: 3px 8px;
+  border: 1px solid #c62828;
+  border-radius: 6px;
+  background: white;
+  color: #c62828;
+  cursor: pointer;
+  font: inherit;
+}
+
+.delete-comment-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .comments-status {

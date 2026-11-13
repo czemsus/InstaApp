@@ -50,4 +50,41 @@ export default class CommentsController {
       createdAt: comment.created_at,
     }));
   }
+
+  static async deleteComment(photoId, commentId, userEmail) {
+    const parsedPhotoId = Number(photoId);
+    const parsedCommentId = Number(commentId);
+    if (
+      !Number.isSafeInteger(parsedPhotoId) ||
+      parsedPhotoId <= 0 ||
+      !Number.isSafeInteger(parsedCommentId) ||
+      parsedCommentId <= 0
+    ) {
+      throw new Error("Invalid comment or photo ID");
+    }
+
+    if (typeof userEmail !== "string" || !userEmail.trim()) {
+      throw new Error("Invalid userEmail");
+    }
+
+    const result = await query(
+      `DELETE FROM comments AS c
+       USING photos AS p
+       WHERE c.id = $1
+         AND c.photo_id = $2
+         AND p.id = c.photo_id
+         AND (c.user_email = $3 OR p.album = $3)
+       RETURNING c.id`,
+      [parsedCommentId, parsedPhotoId, userEmail.trim()],
+    );
+    if (result.rowCount > 0) {
+      return true;
+    }
+
+    const existing = await query(
+      "SELECT 1 FROM comments WHERE id = $1 AND photo_id = $2",
+      [parsedCommentId, parsedPhotoId],
+    );
+    return existing.rowCount > 0 ? false : null;
+  }
 }

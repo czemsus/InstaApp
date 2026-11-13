@@ -107,6 +107,24 @@ const addPhotoComment = async (photoId, content) => {
   );
 };
 
+const deletePhotoComment = async (photoId, commentId) => {
+  const token = localStorage.getItem("userToken");
+  try {
+    const response = await axios.delete(
+      `${API_BASE_URL}/api/photos/${photoId}/comments/${commentId}`,
+      {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      },
+    );
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const setPhotoLike = async (id, liked) => {
   const token = localStorage.getItem("userToken");
   return await patch(`${API_BASE_URL}/api/photos/${id}/like`, { liked }, token);
@@ -147,6 +165,7 @@ export {
   getAllPhotos,
   getPhotoComments,
   addPhotoComment,
+  deletePhotoComment,
   setPhotoLike,
   getUserData,
   getUserPhotos,

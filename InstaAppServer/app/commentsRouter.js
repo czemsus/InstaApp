@@ -9,19 +9,27 @@ const sendJson = (res, status, data) => {
 
 const commentsRouter = async (req, res) => {
   const requestPath = new URL(req.url, "http://localhost").pathname;
-  const match = requestPath.match(/^\/api\/photos\/([0-9]+)\/comments\/?$/);
+  const match = requestPath.match(
+    /^\/api\/photos\/([0-9]+)\/comments(?:\/([0-9]+))?\/?$/,
+  );
   if (!match) {
     sendJson(res, 404, { error: "Endpoint Not Found" });
     return;
   }
 
   const photoId = Number(match[1]);
-  if (!Number.isSafeInteger(photoId) || photoId <= 0) {
-    sendJson(res, 400, { error: "Invalid photoId" });
+  const commentId = match[2] ? Number(match[2]) : null;
+  if (
+    !Number.isSafeInteger(photoId) ||
+    photoId <= 0 ||
+    (commentId !== null &&
+      (!Number.isSafeInteger(commentId) || commentId <= 0))
+  ) {
+    sendJson(res, 400, { error: "Invalid photo or comment ID" });
     return;
   }
 
-  if (req.method === "GET") {
+  if (req.method === "GET" && commentId === null) {
     const authorization = req.headers.authorization;
     const token = authorization?.startsWith("Bearer ")
       ? authorization.slice(7)
@@ -41,7 +49,7 @@ const commentsRouter = async (req, res) => {
     return;
   }
 
-  if (req.method === "POST") {
+  if (req.method === "POST" && commentId === null) {
     const authorization = req.headers.authorization;
     const token = authorization?.startsWith("Bearer ")
       ? authorization.slice(7)
@@ -64,9 +72,12 @@ const commentsRouter = async (req, res) => {
       !data ||
       typeof data !== "object" ||
       typeof data.content !== "string" ||
-      !data.content.trim()
+      !data.content.trim() ||
+      data.content.trim().length > 1000
     ) {
-      sendJson(res, 400, { error: "Comment content is required" });
+      sendJson(res, 400, {
+        error: "Comment content must contain 1 to 1000 characters",
+      });
       return;
     }
 
@@ -90,7 +101,40 @@ const commentsRouter = async (req, res) => {
     return;
   }
 
-  res.setHeader("Allow", "GET, POST");
+  if (req.method === "DELETE" && commentId !== null) {
+    const authorization = req.headers.authorization;
+    const token = authorization?.startsWith("Bearer ")
+      ? authorization.slice(7)
+      : null;
+    const tokenData = token ? verifyToken(token) : "expired";
+    if (tokenData === "expired") {
+      sendJson(res, 401, { error: "Authentication required" });
+      return;
+    }
+
+    try {
+      const deleted = await CommentsController.deleteComment(
+        photoId,
+        commentId,
+        tokenData.email,
+      );
+      if (deleted === null) {
+        sendJson(res, 404, { error: "Comment not found" });
+      } else if (!deleted) {
+        sendJson(res, 403, {
+          error: "Only the comment author or photo author can delete it",
+        });
+      } else {
+        sendJson(res, 200, { status: "success" });
+      }
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      sendJson(res, 500, { error: "Failed to delete comment" });
+    }
+    return;
+  }
+
+  res.setHeader("Allow", commentId === null ? "GET, POST" : "DELETE");
   sendJson(res, 405, { error: "Method Not Allowed" });
 };
 
